@@ -1,0 +1,94 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class UserController extends Controller
+{
+    public function index(Request $request): Response
+    {
+        $users = User::query()
+            ->when($request->search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            })
+            ->when($request->role, function ($query, $role) {
+                $query->where('role', $role);
+            })
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
+        return Inertia::render('admin/users/index', [
+            'users' => $users,
+            'filters' => $request->only(['search', 'role']),
+        ]);
+    }
+
+    public function create(): Response
+    {
+        return Inertia::render('admin/users/create');
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'min:8'],
+            'role' => ['required', 'string', Rule::in(['student', 'tutor', 'admin'])],
+        ]);
+
+        $validated['password'] = Hash::make($validated['password']);
+
+        User::create($validated);
+
+        return redirect()->route('admin.users.index')->with('success', 'User created.');
+    }
+
+    public function edit(User $user): Response
+    {
+        return Inertia::render('admin/users/edit', [
+            'editUser' => $user->only('id', 'name', 'email', 'role'),
+        ]);
+    }
+
+    public function update(Request $request, User $user): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'password' => ['nullable', 'string', 'min:8'],
+            'role' => ['required', 'string', Rule::in(['student', 'tutor', 'admin'])],
+        ]);
+
+        if (empty($validated['password'])) {
+            unset($validated['password']);
+        } else {
+            $validated['password'] = Hash::make($validated['password']);
+        }
+
+        $user->update($validated);
+
+        return redirect()->route('admin.users.index')->with('success', 'User updated.');
+    }
+
+    public function destroy(User $user): RedirectResponse
+    {
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'You cannot delete yourself.');
+        }
+
+        $user->delete();
+
+        return redirect()->route('admin.users.index')->with('success', 'User deleted.');
+    }
+}

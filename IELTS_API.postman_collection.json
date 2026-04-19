@@ -1,0 +1,858 @@
+{
+  "info": {
+    "name": "IELTS Prep API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student@ielts.test\",\n  \"password\": \"password\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login as Tutor",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"tutor@ielts.test\",\n  \"password\": \"password\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login as Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@ielts.test\",\n  \"password\": \"password\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "login"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Profile",
+      "item": [
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Student User\",\n  \"email\": \"student@ielts.test\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/user",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user"]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"password\",\n  \"password\": \"newpassword123\",\n  \"password_confirmation\": \"newpassword123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/user/password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "password"]
+            }
+          }
+        },
+        {
+          "name": "Delete Account",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"password\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/user",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["api", "dashboard"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Writing — Task 1",
+      "item": [
+        {
+          "name": "Get Chart Types",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/task1/types",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "task1", "types"]
+            }
+          }
+        },
+        {
+          "name": "Get Questions — Bar Graph",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/task1/bar_graph/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "task1", "bar_graph", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Get Questions — Line Graph",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/task1/line_graph/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "task1", "line_graph", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Get Questions — Pie Chart",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/task1/pie_chart/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "task1", "pie_chart", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Get Questions — Map",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/task1/map/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "task1", "map", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Get Questions — Process Diagram",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/task1/process_diagram/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "task1", "process_diagram", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Get Question Detail (Practice)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/task1/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "task1", "1"]
+            }
+          }
+        },
+        {
+          "name": "Submit Essay",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"The bar chart illustrates the total revenue of ABC Corporation from 2018 to 2022. Overall, the company experienced consistent growth throughout the period, with the most dramatic increase occurring between 2020 and 2022. In 2018, revenue stood at approximately 2.5 million dollars, rising to 3.2 million in 2019. After a slight dip in 2020, the figures climbed sharply to 4.1 million in 2021 and peaked at 5.3 million in 2022.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/writing/1/submit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "1", "submit"]
+            }
+          }
+        },
+        {
+          "name": "My Submissions (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/submissions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "submissions"]
+            }
+          }
+        },
+        {
+          "name": "View Submission + Feedback",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/submissions/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "submissions", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Writing — Task 2",
+      "item": [
+        {
+          "name": "Get Essay Types",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/task2/types",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "task2", "types"]
+            }
+          }
+        },
+        {
+          "name": "Get Questions — Agree/Disagree",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/task2/agree_disagree/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "task2", "agree_disagree", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Get Questions — Advantage/Disadvantage",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/task2/advantage_disadvantage/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "task2", "advantage_disadvantage", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Get Questions — Discussion",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/task2/discussion/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "task2", "discussion", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Get Questions — Problem/Solution",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/task2/problem_solution/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "task2", "problem_solution", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Get Questions — Two-Part",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/task2/two_part/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "task2", "two_part", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Get Question Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/task2/5/detail",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "task2", "5", "detail"]
+            }
+          }
+        },
+        {
+          "name": "Get Guide Steps — Generic (all essay types)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/guides/task2",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "guides", "task2"]
+            }
+          }
+        },
+        {
+          "name": "Get Guide Steps — Agree/Disagree",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/guides/task2/agree_disagree",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "guides", "task2", "agree_disagree"]
+            }
+          }
+        },
+        {
+          "name": "Get Guide Steps — Advantage/Disadvantage",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/writing/guides/task2/advantage_disadvantage",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "guides", "task2", "advantage_disadvantage"]
+            }
+          }
+        },
+        {
+          "name": "Submit Essay (Task 2)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"In today's rapidly evolving society, the debate around technology's role in the workplace has intensified. While many argue that technological advancements have significantly boosted productivity, others contend that they bring considerable stress and undermine meaningful human interaction. I believe that technology, when managed effectively, offers far more benefits than drawbacks.\\n\\nOn one hand, technology has revolutionised workplace efficiency. Digital communication tools such as email and video conferencing allow teams to collaborate seamlessly across different time zones. Furthermore, automation of repetitive tasks frees employees to focus on creative and strategic work, leading to higher overall output. For example, project management software has reduced the time spent in status meetings by enabling real-time progress tracking.\\n\\nOn the other hand, critics argue that technology contributes to employee burnout. The expectation of constant availability through smartphones and messaging apps means that the boundary between work and personal life has blurred. Studies indicate that employees who feel obligated to check emails outside working hours report significantly higher stress levels.\\n\\nOverall, while technology does introduce challenges related to work-life balance, these are largely addressable through clear organisational policies. The productivity gains and collaborative opportunities it provides are transformative. Companies that establish healthy digital boundaries can harness the full potential of technology while protecting employee well-being.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/writing/5/submit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "writing", "5", "submit"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tutor — Reviews",
+      "item": [
+        {
+          "name": "List All Submissions",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tutor/reviews",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tutor", "reviews"]
+            }
+          }
+        },
+        {
+          "name": "List All Submissions — Page 2",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tutor/reviews?page=2",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tutor", "reviews"],
+              "query": [{ "key": "page", "value": "2" }]
+            }
+          }
+        },
+        {
+          "name": "View Submission Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tutor/reviews/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tutor", "reviews", "1"]
+            }
+          }
+        },
+        {
+          "name": "Submit Feedback",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"band_score\": 7.0,\n  \"grammar_feedback\": \"Good range of grammatical structures with generally accurate usage. Minor issues with article usage in a few places.\",\n  \"vocabulary_feedback\": \"Effective use of topic-specific vocabulary such as upward trend and year-on-year increase. Good range of synonyms.\",\n  \"coherence_feedback\": \"Well organised with clear progression. Good use of cohesive devices. Each paragraph has a clear focus.\",\n  \"recommendations\": \"Try to include more specific data points and comparisons. Consider using more complex sentence structures to aim for a higher band score.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tutor/reviews/1/feedback",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tutor", "reviews", "1", "feedback"]
+            }
+          }
+        },
+        {
+          "name": "Update Feedback",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"band_score\": 7.5,\n  \"grammar_feedback\": \"Excellent range of complex structures used accurately throughout.\",\n  \"vocabulary_feedback\": \"Sophisticated vocabulary with precise word choice and minimal errors.\",\n  \"coherence_feedback\": \"Logically organised with a clear central topic in each paragraph.\",\n  \"recommendations\": \"Focus on varying sentence openings and check subject-verb agreement in longer sentences.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tutor/reviews/1/feedback",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tutor", "reviews", "1", "feedback"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin — Users",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "List Users — Filter by Role",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users?role=student",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users"],
+              "query": [{ "key": "role", "value": "student" }]
+            }
+          }
+        },
+        {
+          "name": "List Users — Search",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users?search=student",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users"],
+              "query": [{ "key": "search", "value": "student" }]
+            }
+          }
+        },
+        {
+          "name": "Get User",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/3",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "3"]
+            }
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Smith\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"student\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Smith Updated\",\n  \"email\": \"jane@example.com\",\n  \"role\": \"tutor\",\n  \"password\": \"\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/3",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "3"]
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/3",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "3"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin — Writing Questions",
+      "item": [
+        {
+          "name": "List Questions",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/writing-questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "writing-questions"]
+            }
+          }
+        },
+        {
+          "name": "List Questions — Filter by Type",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/writing-questions?type=task1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "writing-questions"],
+              "query": [{ "key": "type", "value": "task1" }]
+            }
+          }
+        },
+        {
+          "name": "List Questions — Filter by Chart Type",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/writing-questions?chart_type=bar_graph",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "writing-questions"],
+              "query": [{ "key": "chart_type", "value": "bar_graph" }]
+            }
+          }
+        },
+        {
+          "name": "Get Question",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/writing-questions/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "writing-questions", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Question (JSON)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"task1\",\n  \"title\": \"Sales Revenue 2020-2024\",\n  \"prompt_text\": \"The bar chart below shows the annual sales revenue for a retail company from 2020 to 2024. Summarise the information by selecting and reporting the main features.\",\n  \"chart_type\": \"bar_graph\",\n  \"difficulty\": \"easy\",\n  \"hints\": {\n    \"questions\": [\"What is the overall trend?\", \"Which year had the highest revenue?\"],\n    \"verbs\": [\"increased\", \"declined\", \"peaked\", \"remained stable\"],\n    \"adverbs\": [\"sharply\", \"gradually\", \"significantly\"],\n    \"sentence_structures\": [\"The figure for ___ increased steadily from ___ to ___ between ___ and ___.\", \"Overall, ___ experienced the most significant change.\"]\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/writing-questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "writing-questions"]
+            }
+          }
+        },
+        {
+          "name": "Create Question (with Image)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "type", "value": "task1", "type": "text" },
+                { "key": "title", "value": "Sales Revenue 2020-2024", "type": "text" },
+                { "key": "prompt_text", "value": "The bar chart below shows annual sales revenue. Summarise the main features.", "type": "text" },
+                { "key": "chart_type", "value": "bar_graph", "type": "text" },
+                { "key": "difficulty", "value": "medium", "type": "text" },
+                { "key": "hints[questions][0]", "value": "What is the overall trend?", "type": "text" },
+                { "key": "hints[verbs][0]", "value": "increased", "type": "text" },
+                { "key": "hints[verbs][1]", "value": "declined", "type": "text" },
+                { "key": "image", "value": "", "type": "file", "description": "Attach image file (JPG/PNG, max 2MB)" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/writing-questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "writing-questions"]
+            }
+          }
+        },
+        {
+          "name": "Update Question",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"task1\",\n  \"title\": \"Updated Question Title\",\n  \"prompt_text\": \"Updated prompt text here.\",\n  \"chart_type\": \"bar_graph\",\n  \"difficulty\": \"hard\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/writing-questions/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "writing-questions", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Question",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/writing-questions/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "writing-questions", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
