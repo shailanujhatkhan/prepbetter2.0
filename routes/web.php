@@ -5,8 +5,10 @@ use App\Http\Controllers\Admin\WritingQuestionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Tutor\ReviewController;
 use App\Http\Controllers\WritingController;
+use App\Http\Controllers\AIWritingFeedbackController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
+
 
 Route::inertia('/', 'welcome', [
     'canRegister' => Features::enabled(Features::registration()),
@@ -23,6 +25,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('writing/task1/{question}/practice', [WritingController::class, 'task1Practice'])->name('writing.task1.practice');
     Route::post('writing/{question}/submit', [WritingController::class, 'submit'])->name('writing.submit');
     Route::get('writing/submission/{submission}', [WritingController::class, 'submission'])->name('writing.submission');
+
+    // AI FEEDBACK ROUTE
+    Route::get('ai-feedback/{id}', [AIWritingFeedbackController::class, 'generateFeedback'])->name('ai.feedback');
     
     // Task 2: Guided Essay Flow
     Route::get('writing/task2', [WritingController::class, 'task2Types'])->name('writing.task2.types');
