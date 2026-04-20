@@ -55,15 +55,24 @@ export default function SubmissionView({ submission }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Submission" />
+
             <div className="flex h-full flex-1 flex-col gap-4">
+
+                {/* HEADER */}
                 <div className="flex items-start justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">{submission.question.title}</h1>
+                        <h1 className="text-2xl font-bold tracking-tight">
+                            {submission.question.title}
+                        </h1>
+
                         <p className="text-muted-foreground text-sm">
                             Submitted {new Date(submission.created_at).toLocaleString()} &middot; {submission.word_count} words
                         </p>
                     </div>
+
                     <div className="flex gap-2">
+
+                        {/* existing button */}
                         {submission.question.chart_type && (
                             <Button variant="outline" size="sm" asChild>
                                 <Link href={`/writing/task1/${submission.question.chart_type}`}>
@@ -71,12 +80,23 @@ export default function SubmissionView({ submission }: Props) {
                                 </Link>
                             </Button>
                         )}
+
+                        {/* ✅ ADDED: AI FEEDBACK BUTTON (SAFE) */}
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href={`/ai-feedback/${submission.id}`}>
+                                AI Feedback
+                            </Link>
+                        </Button>
+
                     </div>
                 </div>
 
+                {/* MAIN GRID */}
                 <div className="grid gap-6 lg:grid-cols-2">
-                    {/* Left: submission content */}
+
+                    {/* LEFT SIDE */}
                     <div className="space-y-4">
+
                         {submission.question.image_path && (
                             <div className="rounded-lg border overflow-hidden">
                                 <img
@@ -86,42 +106,63 @@ export default function SubmissionView({ submission }: Props) {
                                 />
                             </div>
                         )}
+
                         <Card>
                             <CardHeader className="pb-3">
-                                <CardTitle className="text-base">Your Response</CardTitle>
+                                <CardTitle className="text-base">
+                                    Your Response
+                                </CardTitle>
                             </CardHeader>
+
                             <CardContent>
-                                <p className="whitespace-pre-wrap text-sm leading-relaxed">{submission.content}</p>
+                                <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                                    {submission.content}
+                                </p>
                             </CardContent>
                         </Card>
                     </div>
 
-                    {/* Right: feedback */}
+                    {/* RIGHT SIDE */}
                     <div>
+
                         {fb ? (
                             <Card>
+
                                 <CardHeader className="pb-3">
                                     <CardTitle className="text-base flex items-center justify-between">
+
                                         Feedback
+
                                         <div className="flex items-center gap-2">
+
                                             <Badge variant={fb.evaluator_type === 'ai' ? 'default' : 'secondary'}>
-                                                {fb.evaluator_type === 'ai' ? 'AI' : `Tutor: ${fb.evaluator?.name}`}
+                                                {fb.evaluator_type === 'ai'
+                                                    ? 'AI'
+                                                    : `Tutor: ${fb.evaluator?.name}`}
                                             </Badge>
+
                                             {fb.band_score && (
                                                 <Badge variant="outline" className="text-lg px-3 py-1">
                                                     Band {fb.band_score}
                                                 </Badge>
                                             )}
+
                                         </div>
+
                                     </CardTitle>
                                 </CardHeader>
+
                                 <CardContent className="space-y-4 text-sm">
+
                                     {fb.grammar_feedback && (
                                         <div>
                                             <p className="font-medium mb-1">Grammar</p>
-                                            <p className="text-muted-foreground">{fb.grammar_feedback}</p>
+                                            <p className="text-muted-foreground">
+                                                {fb.grammar_feedback}
+                                            </p>
                                         </div>
                                     )}
+
                                     {fb.grammar_breakdown && (
                                         <div>
                                             <p className="font-medium mb-1">Grammar Breakdown</p>
@@ -133,36 +174,54 @@ export default function SubmissionView({ submission }: Props) {
                                         </div>
                                     )}
                                            
+
                                     {fb.vocabulary_feedback && (
                                         <div>
                                             <p className="font-medium mb-1">Vocabulary</p>
-                                            <p className="text-muted-foreground">{fb.vocabulary_feedback}</p>
+                                            <p className="text-muted-foreground">
+                                                {fb.vocabulary_feedback}
+                                            </p>
                                         </div>
                                     )}
+
                                     {fb.coherence_feedback && (
                                         <div>
-                                            <p className="font-medium mb-1">Coherence & Cohesion</p>
-                                            <p className="text-muted-foreground">{fb.coherence_feedback}</p>
+                                            <p className="font-medium mb-1">
+                                                Coherence & Cohesion
+                                            </p>
+                                            <p className="text-muted-foreground">
+                                                {fb.coherence_feedback}
+                                            </p>
                                         </div>
                                     )}
+
                                     {fb.recommendations && (
                                         <div>
-                                            <p className="font-medium mb-1">Recommendations</p>
-                                            <p className="text-muted-foreground">{fb.recommendations}</p>
+                                            <p className="font-medium mb-1">
+                                                Recommendations
+                                            </p>
+                                            <p className="text-muted-foreground">
+                                                {fb.recommendations}
+                                            </p>
                                         </div>
                                     )}
+
                                 </CardContent>
+
                             </Card>
                         ) : (
                             <Card>
                                 <CardContent className="py-12 text-center">
-                                    <p className="text-muted-foreground">No feedback yet.</p>
+                                    <p className="text-muted-foreground">
+                                        No feedback yet.
+                                    </p>
                                     <p className="text-muted-foreground text-sm mt-1">
                                         A tutor will review your submission soon.
                                     </p>
                                 </CardContent>
                             </Card>
                         )}
+
                     </div>
                 </div>
             </div>

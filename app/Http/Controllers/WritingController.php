@@ -1,112 +1,203 @@
-<?php
+import { Head, Link, usePage } from '@inertiajs/react';
+import {
+    BookOpen,
+    CheckCircle,
+    Clock,
+    Ear,
+    FileText,
+    Mic,
+    PenTool,
+    Settings,
+    Star,
+    Users,
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import AppLayout from '@/layouts/app-layout';
+import type { Auth, BreadcrumbItem, UserRole } from '@/types';
+import type { LucideIcon } from 'lucide-react';
 
-namespace App\Http\Controllers;
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: '/dashboard' }];
 
-use App\Models\WritingQuestion;
-use App\Models\WritingSubmission;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
+type Submission = {
+    id: number;
+    word_count: number;
+    created_at: string;
+    user: { name: string };
+    question: { title: string; chart_type: string | null };
+    feedback: { band_score: number } | null;
+};
 
-class WritingController extends Controller
-{
-    public function index(): Response
+type Stats = {
+    totalWritingQuestions?: number;
+    mySubmissions?: number;
+    reviewedSubmissions?: number;
+    pendingSubmissions?: number;
+    averageBandScore?: number | null;
+    submissionsNeedingReview?: number;
+    totalReviewedSubmissions?: number;
+    recentSubmissions?: Submission[];
+    totalUsers?: number;
+    totalStudents?: number;
+    totalTutors?: number;
+    totalSubmissions?: number;
+};
+
+type DashboardCard = {
+    title: string;
+    description: string;
+    href: string;
+    icon: LucideIcon;
+};
+
+type DashboardSection = {
+    heading: string;
+    subtitle: string;
+    roles: UserRole[];
+    cards: DashboardCard[];
+};
+
+const sections: DashboardSection[] = [
     {
-        return Inertia::render('writing/index');
-    }
+        heading: 'Practice Modules',
+        subtitle: 'Choose a module to start practicing.',
+        roles: ['student', 'tutor', 'admin'],
+        cards: [
+            { title: 'Writing', description: 'Practice Task 1 reports & Task 2 essays', href: '/writing', icon: PenTool },
+            { title: 'Listening', description: 'Audio meaning matching exercises', href: '/listening', icon: Ear },
+            { title: 'Reading', description: 'Paraphrasing & summarization practice', href: '/reading', icon: BookOpen },
+            { title: 'Speaking', description: 'Book sessions with IELTS tutors', href: '/speaking', icon: Mic },
 
-    public function task1Types(): Response
+            // ✅ FIXED (NO HARDCODE, MERGE SAFE)
+            {
+                title: 'Write-up Review',
+                description: 'Get AI feedback on your writing submissions',
+                href: '/writing',
+                icon: FileText,
+            },
+        ],
+    },
     {
-        $types = WritingQuestion::where('type', 'task1')
-            ->selectRaw('chart_type, count(*) as count')
-            ->groupBy('chart_type')
-            ->pluck('count', 'chart_type');
-
-        return Inertia::render('writing/task1/types', [
-            'typeCounts' => $types,
-        ]);
-    }
-
-    public function task1Questions(string $chartType): Response
+        heading: 'Tutor Panel',
+        subtitle: 'Manage essay reviews and speaking sessions.',
+        roles: ['tutor', 'admin'],
+        cards: [
+            { title: 'Essay Reviews', description: 'Review student essay submissions', href: '/tutor/reviews', icon: FileText },
+            { title: 'Availability', description: 'Manage your available time slots', href: '/tutor/availability', icon: Settings },
+        ],
+    },
     {
-        $questions = WritingQuestion::where('type', 'task1')
-            ->where('chart_type', $chartType)
-            ->latest()
-            ->get(['id', 'title', 'difficulty', 'chart_type']);
+        heading: 'Administration',
+        subtitle: 'Manage platform content and users.',
+        roles: ['admin'],
+        cards: [
+            { title: 'Users', description: 'Manage users and assign roles', href: '/admin/users', icon: Users },
+            { title: 'Writing Questions', description: 'Manage Task 1 & Task 2 questions', href: '/admin/writing-questions', icon: PenTool },
+        ],
+    },
+];
 
-        return Inertia::render('writing/task1/questions', [
-            'chartType' => $chartType,
-            'questions' => $questions,
-        ]);
-    }
+function StatCard({
+    label,
+    value,
+    icon: Icon,
+    href,
+    color = 'blue',
+}: {
+    label: string;
+    value: string | number;
+    icon: LucideIcon;
+    href?: string;
+    color?: 'blue' | 'green' | 'amber' | 'purple' | 'rose';
+}) {
+    const colors = {
+        blue: 'bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400',
+        green: 'bg-green-100 text-green-600 dark:bg-green-950 dark:text-green-400',
+        amber: 'bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400',
+        purple: 'bg-purple-100 text-purple-600 dark:bg-purple-950 dark:text-purple-400',
+        rose: 'bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-400',
+    };
 
-    public function task1Practice(WritingQuestion $question): Response
-    {
-        return Inertia::render('writing/task1/practice', [
-            'question' => $question,
-        ]);
-    }
+    const content = (
+        <Card className="transition-shadow hover:shadow-md h-full py-4">
+            <CardContent className="flex items-center gap-4">
+                <div className={`rounded-lg p-3 ${colors[color]}`}>
+                    <Icon className="h-5 w-5" />
+                </div>
+                <div>
+                    <p className="text-2xl font-bold">{value}</p>
+                    <p className="text-muted-foreground text-sm">{label}</p>
+                </div>
+            </CardContent>
+        </Card>
+    );
 
-    public function submit(Request $request, WritingQuestion $question): RedirectResponse
-    {
-        $validated = $request->validate([
-            'content' => ['required', 'string', 'min:10'],
-        ]);
+    return href ? <Link href={href}>{content}</Link> : content;
+}
 
-        $wordCount = str_word_count($validated['content']);
+export default function Dashboard() {
+    const { auth, stats } = usePage<{ auth: Auth; stats: Stats }>().props;
+    const role = auth.user.role;
+    const visibleSections = sections.filter((s) => s.roles.includes(role));
 
-        $submission = WritingSubmission::create([
-            'user_id' => auth()->id(),
-            'writing_question_id' => $question->id,
-            'content' => $validated['content'],
-            'word_count' => $wordCount,
-        ]);
+    return (
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Dashboard" />
 
-        return redirect()->route('writing.submission', $submission)->with('success', 'Essay submitted successfully.');
-    }
+            <div className="flex h-full flex-1 flex-col gap-8">
 
-    public function submission(WritingSubmission $submission): Response
-    {
-        $submission->load(['question', 'feedback.evaluator']);
+                {/* HEADER */}
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight">
+                        Welcome back, {auth.user.name}
+                    </h1>
+                    <p className="text-muted-foreground">
+                        {role === 'admin' && 'Full platform access — practice, tutor tools, and admin controls.'}
+                        {role === 'tutor' && 'Practice IELTS skills and manage your tutor responsibilities.'}
+                        {role === 'student' && 'Track your progress and keep practicing.'}
+                    </p>
+                </div>
 
-        abort_unless($submission->user_id === auth()->id() || auth()->user()->isTutor() || auth()->user()->isAdmin(), 403);
+                {/* STATS */}
+                {role === 'student' && (
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        <StatCard label="Total Submissions" value={stats.mySubmissions ?? 0} icon={FileText} color="blue" />
+                        <StatCard label="Reviewed" value={stats.reviewedSubmissions ?? 0} icon={CheckCircle} color="green" />
+                        <StatCard label="Pending Review" value={stats.pendingSubmissions ?? 0} icon={Clock} color="amber" />
+                        <StatCard label="Avg. Band Score" value={stats.averageBandScore ?? '—'} icon={Star} color="purple" />
+                    </div>
+                )}
 
-        return Inertia::render('writing/submission', [
-            'submission' => $submission,
-        ]);
-    }
+                {/* SECTIONS */}
+                {visibleSections.map((section) => (
+                    <div key={section.heading} className="flex flex-col gap-4">
 
-    // ── Task 2: Guided Essay Flow ─────────────────────────────────────────
-    public function task2Types(): Response
-    {
-        $types = WritingQuestion::where('type', 'task2')
-            ->selectRaw('essay_type, count(*) as count')
-            ->groupBy('essay_type')
-            ->pluck('count', 'essay_type');
+                        <div>
+                            <h2 className="text-lg font-semibold">{section.heading}</h2>
+                            <p className="text-muted-foreground text-sm">{section.subtitle}</p>
+                        </div>
 
-        return Inertia::render('writing/task2/types', [
-            'typeCounts' => $types,
-        ]);
-    }
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            {section.cards.map((card) => (
+                                <Link key={card.title} href={card.href} className="group">
+                                    <Card className="transition-shadow group-hover:shadow-md">
+                                        <CardHeader className="flex flex-row items-center gap-4">
+                                            <div className="bg-primary/10 text-primary rounded-lg p-2">
+                                                <card.icon className="h-6 w-6" />
+                                            </div>
+                                            <div>
+                                                <CardTitle>{card.title}</CardTitle>
+                                                <CardDescription>{card.description}</CardDescription>
+                                            </div>
+                                        </CardHeader>
+                                    </Card>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                ))}
 
-    public function task2Questions(string $essayType): Response
-    {
-        $questions = WritingQuestion::where('type', 'task2')
-            ->where('essay_type', $essayType)
-            ->latest()
-            ->get(['id', 'title', 'difficulty', 'essay_type']);
-
-        return Inertia::render('writing/task2/questions', [
-            'essayType' => $essayType,
-            'questions' => $questions,
-        ]);
-    }
-
-    public function task2Guided(WritingQuestion $question): Response
-    {
-        return Inertia::render('writing/task2/guided', [
-            'question' => $question,
-        ]);
-    }
+            </div>
+        </AppLayout>
+    );
 }
