@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Tutor\ReviewController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\WritingController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AIWritingFeedbackController; // ✅ ADDED (safe import)
 
 // ── Public auth (no CSRF required — already excluded for api/*) ───────────────
 Route::prefix('api')->group(function () {
@@ -53,4 +54,8 @@ Route::prefix('api')->middleware(['auth'])->group(function () {
         Route::apiResource('/users', AdminUserController::class);
         Route::apiResource('/writing-questions', AdminWritingQuestionController::class);
     });
+
+    // ── AI FEEDBACK (NEW ROUTE ADDED) ────────────────────────────────────────
+    Route::get('/ai-feedback/{id}', [AIWritingFeedbackController::class, 'generateFeedback']);
+
 });

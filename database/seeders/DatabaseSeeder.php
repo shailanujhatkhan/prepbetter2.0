@@ -7,6 +7,7 @@ use App\Models\WritingFeedback;
 use App\Models\WritingQuestion;
 use App\Models\WritingSubmission;
 use Illuminate\Database\Seeder;
+use Database\Seeders\TutorSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -41,6 +42,9 @@ class DatabaseSeeder extends Seeder
 
         $this->call(WritingQuestionSeeder::class);
 
+        // 👉 SAFE ADDITION (your booking system)
+        $this->call(TutorSeeder::class);
+
         // Seed demo submissions and feedback for the complete flow
         $questions = WritingQuestion::all();
 
@@ -63,7 +67,7 @@ class DatabaseSeeder extends Seeder
             'recommendations' => 'Try to include more specific data points and comparisons. You could also mention the overall percentage increase. Consider using more complex sentence structures to aim for a higher band score.',
         ]);
 
-        // Submission 2: Pending review (no feedback yet)
+        // Submission 2: Pending review
         WritingSubmission::create([
             'user_id' => $student->id,
             'writing_question_id' => $questions[2]->id,
@@ -71,7 +75,7 @@ class DatabaseSeeder extends Seeder
             'word_count' => 152,
         ]);
 
-        // Submission 3: From another student, also pending
+        // Submission 3
         $otherStudent = User::where('role', 'student')->where('id', '!=', $student->id)->first();
         if ($otherStudent) {
             WritingSubmission::create([

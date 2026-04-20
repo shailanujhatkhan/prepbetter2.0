@@ -51,10 +51,11 @@ class AIWritingFeedbackController extends Controller
             'recommendations' => 'Focus on grammar corrections shown.',
         ]);
 
-        return response()->json([
-            'message' => 'Feedback generated successfully',
-            'feedback' => $feedback,
-            'grammar_issues' => $grammarIssues
-        ]);
+        return Inertia::render('writingcheck/AIFeedback', [
+            'id' => $submission->id, 
+            'original' => $text, 
+            'corrections' => $grammarIssues, 
+            'band_score' => $bandScore,
+            ]);
     }
 }

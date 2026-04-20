@@ -67,6 +67,14 @@ const sections: DashboardSection[] = [
             { title: 'Listening', description: 'Audio meaning matching exercises', href: '/listening', icon: Ear },
             { title: 'Reading', description: 'Paraphrasing & summarization practice', href: '/reading', icon: BookOpen },
             { title: 'Speaking', description: 'Book sessions with IELTS tutors', href: '/speaking', icon: Mic },
+
+            // Aligns with backend route
+            { 
+                title: 'Write-up Review', 
+                description: 'Get AI feedback on your writing submissions', 
+                href: '/writing/submissions', 
+                icon: FileText 
+            },
         ],
     },
     {
@@ -89,7 +97,19 @@ const sections: DashboardSection[] = [
     },
 ];
 
-function StatCard({ label, value, icon: Icon, href, color = 'blue' }: { label: string; value: string | number; icon: LucideIcon; href?: string; color?: 'blue' | 'green' | 'amber' | 'purple' | 'rose' }) {
+function StatCard({
+    label,
+    value,
+    icon: Icon,
+    href,
+    color = 'blue',
+}: {
+    label: string;
+    value: string | number;
+    icon: LucideIcon;
+    href?: string;
+    color?: 'blue' | 'green' | 'amber' | 'purple' | 'rose';
+}) {
     const colors = {
         blue: 'bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400',
         green: 'bg-green-100 text-green-600 dark:bg-green-950 dark:text-green-400',
@@ -97,6 +117,7 @@ function StatCard({ label, value, icon: Icon, href, color = 'blue' }: { label: s
         purple: 'bg-purple-100 text-purple-600 dark:bg-purple-950 dark:text-purple-400',
         rose: 'bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-400',
     };
+
     const content = (
         <Card className="transition-shadow hover:shadow-md h-full py-4">
             <CardContent className="flex items-center gap-4">
@@ -110,6 +131,7 @@ function StatCard({ label, value, icon: Icon, href, color = 'blue' }: { label: s
             </CardContent>
         </Card>
     );
+
     return href ? <Link href={href}>{content}</Link> : content;
 }
 
@@ -121,7 +143,9 @@ export default function Dashboard() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
+
             <div className="flex h-full flex-1 flex-col gap-8">
+
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight">
                         Welcome back, {auth.user.name}
@@ -133,88 +157,25 @@ export default function Dashboard() {
                     </p>
                 </div>
 
-                {/* Stats Overview */}
+                {/* Stats */}
                 {role === 'student' && (
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         <StatCard label="Total Submissions" value={stats.mySubmissions ?? 0} icon={FileText} color="blue" />
                         <StatCard label="Reviewed" value={stats.reviewedSubmissions ?? 0} icon={CheckCircle} color="green" />
                         <StatCard label="Pending Review" value={stats.pendingSubmissions ?? 0} icon={Clock} color="amber" />
-                        <StatCard
-                            label="Avg. Band Score"
-                            value={stats.averageBandScore != null ? Number(stats.averageBandScore).toFixed(1) : '—'}
-                            icon={Star}
-                            color="purple"
-                        />
+                        <StatCard label="Avg. Band Score" value={stats.averageBandScore ?? '—'} icon={Star} color="purple" />
                     </div>
                 )}
 
-                {role === 'tutor' && (
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        <StatCard label="Needs Review" value={stats.submissionsNeedingReview ?? 0} icon={Clock} color="amber" href="/tutor/reviews" />
-                        <StatCard label="Reviewed" value={stats.totalReviewedSubmissions ?? 0} icon={CheckCircle} color="green" />
-                        <StatCard label="Writing Questions" value={stats.totalWritingQuestions ?? 0} icon={PenTool} color="blue" />
-                    </div>
-                )}
-
-                {role === 'admin' && (
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                        <StatCard label="Total Users" value={stats.totalUsers ?? 0} icon={Users} color="blue" href="/admin/users" />
-                        <StatCard label="Students" value={stats.totalStudents ?? 0} icon={Users} color="green" />
-                        <StatCard label="Tutors" value={stats.totalTutors ?? 0} icon={Users} color="purple" />
-                        <StatCard label="Total Submissions" value={stats.totalSubmissions ?? 0} icon={FileText} color="amber" />
-                    </div>
-                )}
-
-                {role === 'admin' && (
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        <StatCard label="Needs Review" value={stats.submissionsNeedingReview ?? 0} icon={Clock} color="rose" href="/tutor/reviews" />
-                        <StatCard label="Reviewed" value={stats.totalReviewedSubmissions ?? 0} icon={CheckCircle} color="green" />
-                        <StatCard label="Writing Questions" value={stats.totalWritingQuestions ?? 0} icon={PenTool} color="blue" href="/admin/writing-questions" />
-                    </div>
-                )}
-
-                {/* Recent Submissions - Tutor/Admin */}
-                {(role === 'tutor' || role === 'admin') && stats.recentSubmissions && stats.recentSubmissions.length > 0 && (
-                    <div className="flex flex-col gap-4">
-                        <div>
-                            <h2 className="text-lg font-semibold">Recent Submissions</h2>
-                            <p className="text-muted-foreground text-sm">Latest student submissions across the platform.</p>
-                        </div>
-                        <Card>
-                            <CardContent className="p-0">
-                                <div className="divide-y">
-                                    {stats.recentSubmissions.map((sub) => (
-                                        <Link
-                                            key={sub.id}
-                                            href={`/tutor/reviews/${sub.id}`}
-                                            className="flex items-center justify-between px-6 py-4 hover:bg-muted/50 transition-colors"
-                                        >
-                                            <div className="flex flex-col gap-0.5">
-                                                <span className="font-medium text-sm">{sub.question.title}</span>
-                                                <span className="text-muted-foreground text-xs">
-                                                    by {sub.user.name} · {sub.word_count} words · {new Date(sub.created_at).toLocaleDateString()}
-                                                </span>
-                                            </div>
-                                            {sub.feedback ? (
-                                                <Badge variant="default">Band {sub.feedback.band_score}</Badge>
-                                            ) : (
-                                                <Badge variant="outline">Pending</Badge>
-                                            )}
-                                        </Link>
-                                    ))}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                )}
-
-                {/* Navigation Sections */}
+                {/* Sections */}
                 {visibleSections.map((section) => (
                     <div key={section.heading} className="flex flex-col gap-4">
+
                         <div>
                             <h2 className="text-lg font-semibold">{section.heading}</h2>
                             <p className="text-muted-foreground text-sm">{section.subtitle}</p>
                         </div>
+
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {section.cards.map((card) => (
                                 <Link key={card.title} href={card.href} className="group">
@@ -234,6 +195,7 @@ export default function Dashboard() {
                         </div>
                     </div>
                 ))}
+
             </div>
         </AppLayout>
     );
