@@ -40,6 +40,11 @@ class ReviewController extends Controller
             'vocabulary_feedback' => ['required', 'string'],
             'coherence_feedback' => ['required', 'string'],
             'recommendations' => ['required', 'string'],
+
+            'grammar_breakdown' => ['nullable', 'array'],
+            'grammar_breakdown.articles' => ['nullable', 'integer'],
+            'grammar_breakdown.tenses' => ['nullable', 'integer'],
+            'grammar_breakdown.prepositions' => ['nullable', 'integer'],
         ]);
 
         WritingFeedback::updateOrCreate(
@@ -49,6 +54,7 @@ class ReviewController extends Controller
             ],
             [
                 ...$validated,
+                'grammar_breakdown' => $validated['grammar_breakdown'] ?? null,
                 'evaluator_id' => auth()->id(),
             ]
         );

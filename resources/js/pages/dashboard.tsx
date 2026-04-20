@@ -16,6 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import AppLayout from '@/layouts/app-layout';
 import type { Auth, BreadcrumbItem, UserRole } from '@/types';
 import type { LucideIcon } from 'lucide-react';
+import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: '/dashboard' }];
 
@@ -34,6 +35,11 @@ type Stats = {
     reviewedSubmissions?: number;
     pendingSubmissions?: number;
     averageBandScore?: number | null;
+    grammarHeatmap?: {
+    articles: number;
+    tenses: number;
+    prepositions: number;
+};
     submissionsNeedingReview?: number;
     totalReviewedSubmissions?: number;
     recentSubmissions?: Submission[];
@@ -136,10 +142,21 @@ function StatCard({
 }
 
 export default function Dashboard() {
+    
+const getColor = (value: number) => {
+    if (value === 0) return "bg-green-100 text-green-800";
+    if (value <= 2) return "bg-green-200 text-green-900";
+    if (value <= 4) return "bg-yellow-200 text-yellow-900";
+    if (value <= 6) return "bg-orange-200 text-orange-900";
+    return "bg-red-300 text-red-900";
+};
     const { auth, stats } = usePage<{ auth: Auth; stats: Stats }>().props;
+    const [demoMode, setDemoMode] = useState(false);
     const role = auth.user.role;
     const visibleSections = sections.filter((s) => s.roles.includes(role));
-
+const heatmap = demoMode
+    ? { articles: 5, tenses: 2, prepositions: 10 }
+    : (stats.grammarHeatmap ?? { articles: 0, tenses: 0, prepositions: 0 });
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -163,7 +180,64 @@ export default function Dashboard() {
                         <StatCard label="Total Submissions" value={stats.mySubmissions ?? 0} icon={FileText} color="blue" />
                         <StatCard label="Reviewed" value={stats.reviewedSubmissions ?? 0} icon={CheckCircle} color="green" />
                         <StatCard label="Pending Review" value={stats.pendingSubmissions ?? 0} icon={Clock} color="amber" />
-                        <StatCard label="Avg. Band Score" value={stats.averageBandScore ?? '—'} icon={Star} color="purple" />
+
+
+                        <StatCard
+                            label="Avg. Band Score"
+                            value={stats.averageBandScore != null ? Number(stats.averageBandScore).toFixed(1) : '—'}
+                            icon={Star}
+                            color="purple"
+                        />
+                    </div>
+                )}
+                {role === 'student' && (
+                    <>
+<button
+    onClick={() => setDemoMode(!demoMode)}
+    className="mb-3 px-3 py-1 bg-black text-white rounded"
+>
+    Toggle Demo Heatmap
+</button>
+                    <div className="p-4 border rounded-lg shadow-sm bg-white">
+                        <h2 className="text-lg font-semibold mb-4">
+                            Grammar Heatmap Analysis
+                        </h2>
+
+                        <div className="grid grid-cols-3 gap-3">
+                            <div className={`p-4 rounded-lg text-center transition-all ${getColor(heatmap.articles)}`}>
+                                <p className="font-medium">Articles</p>
+                                <p className="text-2xl font-bold">{heatmap.articles}</p>
+                            </div>
+
+                            <div className={`p-4 rounded-lg text-center transition-all ${getColor(heatmap.tenses)}`}>
+                                <p className="font-medium">Tenses</p>
+                                <p className="text-2xl font-bold">{heatmap.tenses}</p>
+                            </div>
+
+                            <div className={`p-4 rounded-lg text-center transition-all ${getColor(heatmap.prepositions)}`}>
+                                <p className="font-medium">Prepositions</p>
+                                <p className="text-2xl font-bold">{heatmap.prepositions}</p>
+                            </div>
+                        </div>
+                    </div>
+                    </>
+                )}
+
+                {role === 'tutor' && (
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        <StatCard label="Needs Review" value={stats.submissionsNeedingReview ?? 0} icon={Clock} color="amber" href="/tutor/reviews" />
+                        <StatCard label="Reviewed" value={stats.totalReviewedSubmissions ?? 0} icon={CheckCircle} color="green" />
+                        <StatCard label="Writing Questions" value={stats.totalWritingQuestions ?? 0} icon={PenTool} color="blue" />
+                    </div>
+                )}
+
+                {role === 'admin' && (
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        <StatCard label="Total Users" value={stats.totalUsers ?? 0} icon={Users} color="blue" href="/admin/users" />
+                        <StatCard label="Students" value={stats.totalStudents ?? 0} icon={Users} color="green" />
+                        <StatCard label="Tutors" value={stats.totalTutors ?? 0} icon={Users} color="purple" />
+                        <StatCard label="Total Submissions" value={stats.totalSubmissions ?? 0} icon={FileText} color="amber" />
+
                     </div>
                 )}
 
