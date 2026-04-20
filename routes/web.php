@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WritingQuestionController;
 use App\Http\Controllers\DashboardController;
@@ -7,6 +6,7 @@ use App\Http\Controllers\Tutor\ReviewController;
 use App\Http\Controllers\WritingController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
+use App\Http\Controllers\ListeningController;
 
 Route::inertia('/', 'welcome', [
     'canRegister' => Features::enabled(Features::registration()),
@@ -28,6 +28,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('writing/task2', [WritingController::class, 'task2Types'])->name('writing.task2.types');
     Route::get('writing/task2/{essayType}', [WritingController::class, 'task2Questions'])->name('writing.task2.questions');
     Route::get('writing/task2/{question}/guided', [WritingController::class, 'task2Guided'])->name('writing.task2.guided');
+
+    Route::get('listening', [ListeningController::class, 'index'])->name('listening.index');
 });
 
 // Tutor routes (tutor + admin can access)

@@ -7,9 +7,16 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\Tutor\ReviewController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\WritingController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use App\Http\Controllers\Api\AudioController;
 use Illuminate\Support\Facades\Route;
 
 // ── Public auth (no CSRF required — already excluded for api/*) ───────────────
+
+Route::get('/test-audio-route', function () {
+    return 'audio route works';
+});
 Route::prefix('api')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
@@ -22,6 +29,7 @@ Route::prefix('api')->middleware(['auth'])->group(function () {
     Route::patch('/user', [UserController::class, 'update']);
     Route::put('/user/password', [UserController::class, 'updatePassword']);
     Route::delete('/user', [UserController::class, 'destroy']);
+    
 
     // ── Dashboard ─────────────────────────────────────────────────────────────
     Route::get('/dashboard', [DashboardController::class, 'index']);

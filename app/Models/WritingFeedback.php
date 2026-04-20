@@ -20,11 +20,14 @@ class WritingFeedback extends Model
         'recommendations',
     ];
 
+    protected $casts = [
+        'grammar_breakdown' => 'array',
+    ];
+
     public function submission(): BelongsTo
     {
         return $this->belongsTo(WritingSubmission::class, 'writing_submission_id');
     }
-
     public function evaluator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'evaluator_id');

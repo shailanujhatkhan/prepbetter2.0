@@ -10,6 +10,13 @@ type Feedback = {
     evaluator_type: string;
     band_score: number | null;
     grammar_feedback: string | null;
+
+    grammar_breakdown?: {
+        articles: number;
+        tenses: number;
+        prepositions: number;
+    } | null;
+
     vocabulary_feedback: string | null;
     coherence_feedback: string | null;
     recommendations: string | null;
@@ -115,6 +122,17 @@ export default function SubmissionView({ submission }: Props) {
                                             <p className="text-muted-foreground">{fb.grammar_feedback}</p>
                                         </div>
                                     )}
+                                    {fb.grammar_breakdown && (
+                                        <div>
+                                            <p className="font-medium mb-1">Grammar Breakdown</p>
+                                            <p className="text-muted-foreground">
+                                                Articles: {fb.grammar_breakdown.articles ?? 0} <br />
+                                                Tenses: {fb.grammar_breakdown.tenses ?? 0} <br />
+                                                Prepositions: {fb.grammar_breakdown.prepositions ?? 0}
+                                            </p>
+                                        </div>
+                                    )}
+                                           
                                     {fb.vocabulary_feedback && (
                                         <div>
                                             <p className="font-medium mb-1">Vocabulary</p>

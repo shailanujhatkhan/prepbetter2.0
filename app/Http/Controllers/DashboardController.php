@@ -32,6 +32,38 @@ class DashboardController extends Controller
                 ->whereDoesntHave('feedback')
                 ->count();
 
+            $submissions = WritingSubmission::with('feedback')
+                ->where('user_id', $user->id)
+                ->get();
+
+           $heatmap = [
+                'articles' => 0,
+                'tenses' => 0,
+                'prepositions' => 0,
+            ];
+
+            foreach ($submissions as $submission) {
+                    $breakdown = $submission->feedback?->grammar_breakdown;
+
+                    if ($breakdown) {
+                        $heatmap['articles'] += $breakdown['articles'] ?? 0;
+                        $heatmap['tenses'] += $breakdown['tenses'] ?? 0;
+                        $heatmap['prepositions'] += $breakdown['prepositions'] ?? 0;
+                    }
+                }
+
+            $stats['grammarHeatmap'] = $heatmap;
+    
+
+            foreach ($submissions as $submission) {
+                if ($submission->feedback && $submission->feedback->grammar_breakdown) {
+                    $breakdown = $submission->feedback->grammar_breakdown;
+                    $heatmap['articles'] += $breakdown['articles'] ?? 0;
+                    $heatmap['tenses'] += $breakdown['tenses'] ?? 0;
+                    $heatmap['prepositions'] += $breakdown['prepositions'] ?? 0;
+                }
+            }
+
             $stats['averageBandScore'] = WritingFeedback::whereHas('submission', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->avg('band_score');
