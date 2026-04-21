@@ -84,9 +84,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('ai-feedback/{id}', [AIWritingFeedbackController::class, 'generateFeedback'])->name('ai.feedback');
 
-    Route::get('ai-feedback', function () {
-        return Inertia::render('writingcheck/AIFeedback');
-    })->name('ai.feedback.page');
 
     Route::get('writing/task2', [WritingController::class, 'task2Types'])->name('writing.task2.types');
     Route::get('writing/task2/{essayType}', [WritingController::class, 'task2Questions'])->name('writing.task2.questions');

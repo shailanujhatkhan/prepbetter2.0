@@ -4,7 +4,7 @@ export default function AIFeedback() {
   const { props } = usePage<any>();
 
   const {
-    id,
+    submission,
     original,
     corrections,
     band_score,
@@ -33,11 +33,13 @@ export default function AIFeedback() {
           </h2>
 
           <div className="mb-6 bg-white p-4 rounded-xl border">
-            <p className="text-gray-800">{original}</p>
+            <p className="text-gray-800">
+              {original ?? submission?.content ?? "No text available"}
+            </p>
           </div>
 
           {/* BAND SCORE */}
-          {band_score !== undefined && (
+          {band_score !== undefined && band_score !== null && (
             <p className="text-center font-semibold mb-4 text-gray-700">
               Band Score: {band_score}
             </p>
@@ -48,7 +50,7 @@ export default function AIFeedback() {
             Corrections
           </h2>
 
-          {corrections?.length > 0 ? (
+          {Array.isArray(corrections) && corrections.length > 0 ? (
             corrections.map((c: any, i: number) => (
               <div key={i} className="bg-white p-4 rounded-xl mb-3 border">
 

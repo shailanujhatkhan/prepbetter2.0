@@ -74,13 +74,13 @@ const sections: DashboardSection[] = [
             { title: 'Reading', description: 'Paraphrasing & summarization practice', href: '/reading', icon: BookOpen },
             { title: 'Speaking', description: 'Book sessions with IELTS tutors', href: '/speaking', icon: Mic },
 
-            // Aligns with backend route
-            { 
-                title: 'Write-up Review', 
-                description: 'Get AI feedback on your writing submissions', 
-                href: '/writing/submissions', 
-                icon: FileText 
-            },
+            // // Aligns with backend route
+            // { 
+            //     title: 'Write-up Review', 
+            //     description: 'Get AI feedback on your writing submissions', 
+            //     href: '/writing/submissions', 
+            //     icon: FileText 
+            // },
         ],
     },
     {
@@ -253,7 +253,7 @@ const heatmap = demoMode
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {section.cards.map((card) => (
                                 <Link key={card.title} href={card.href} className="group">
-                                    <Card className="transition-shadow group-hover:shadow-md">
+                                    <Card className="transition-shadow group-hover:shadow-md min-h-[120px]">
                                         <CardHeader className="flex flex-row items-center gap-4">
                                             <div className="bg-primary/10 text-primary rounded-lg p-2">
                                                 <card.icon className="h-6 w-6" />
