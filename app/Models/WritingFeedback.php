@@ -18,10 +18,12 @@ class WritingFeedback extends Model
         'vocabulary_feedback',
         'coherence_feedback',
         'recommendations',
+        'corrections',
     ];
 
     protected $casts = [
         'grammar_breakdown' => 'array',
+        'corrections' => 'array',
     ];
 
     public function submission(): BelongsTo

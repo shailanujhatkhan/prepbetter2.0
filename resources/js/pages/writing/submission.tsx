@@ -1,9 +1,10 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
+import { useState } from 'react';
 
 type Feedback = {
     id: number;
@@ -49,8 +50,39 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Submission', href: '#' },
 ];
 
-export default function SubmissionView({ submission }: Props) {
-    const fb = submission.feedback;
+export default function SubmissionView({ submission: initialSubmission }: Props) {
+    const { props } = usePage<any>();
+    const [feedback, setFeedback] = useState<Feedback | null>(initialSubmission.feedback);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const generateFeedback = async () => {
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch(`/api/ai-feedback/${initialSubmission.id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': props.csrf_token || '',
+                },
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to generate feedback');
+            }
+
+            const data = await response.json();
+            setFeedback(data.feedback);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
+            console.error('Error generating feedback:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -62,34 +94,44 @@ export default function SubmissionView({ submission }: Props) {
                 <div className="flex items-start justify-between">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">
-                            {submission.question.title}
+                            {initialSubmission.question.title}
                         </h1>
 
                         <p className="text-muted-foreground text-sm">
-                            Submitted {new Date(submission.created_at).toLocaleString()} &middot; {submission.word_count} words
+                            Submitted {new Date(initialSubmission.created_at).toLocaleString()} &middot; {initialSubmission.word_count} words
                         </p>
                     </div>
 
                     <div className="flex gap-2">
 
-                        {/* existing button */}
-                        {submission.question.chart_type && (
+                        {initialSubmission.question.chart_type && (
                             <Button variant="outline" size="sm" asChild>
-                                <Link href={`/writing/task1/${submission.question.chart_type}`}>
+                                <Link href={`/writing/task1/${initialSubmission.question.chart_type}`}>
                                     More Questions
                                 </Link>
                             </Button>
                         )}
 
-                        {/* ✅ ADDED: AI FEEDBACK BUTTON (SAFE) */}
-                        <Button variant="outline" size="sm" asChild>
-                            <Link href={`/ai-feedback/${submission.id}`}>
-                                AI Feedback
-                            </Link>
-                        </Button>
+                        {/* AI FEEDBACK BUTTON - GENERATES ON SAME PAGE */}
+                        {!feedback && (
+                            <Button
+                                onClick={generateFeedback}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? 'Generating...' : 'AI Feedback'}
+                            </Button>
+                        )}
 
                     </div>
                 </div>
+
+                {/* ERROR MESSAGE */}
+                {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
+                        <p className="font-medium">Error generating feedback</p>
+                        <p className="text-sm">{error}</p>
+                    </div>
+                )}
 
                 {/* MAIN GRID */}
                 <div className="grid gap-6 lg:grid-cols-2">
@@ -97,11 +139,11 @@ export default function SubmissionView({ submission }: Props) {
                     {/* LEFT SIDE */}
                     <div className="space-y-4">
 
-                        {submission.question.image_path && (
+                        {initialSubmission.question.image_path && (
                             <div className="rounded-lg border overflow-hidden">
                                 <img
-                                    src={`/storage/${submission.question.image_path}`}
-                                    alt={submission.question.title}
+                                    src={`/storage/${initialSubmission.question.image_path}`}
+                                    alt={initialSubmission.question.title}
                                     className="w-full h-auto"
                                 />
                             </div>
@@ -116,7 +158,7 @@ export default function SubmissionView({ submission }: Props) {
 
                             <CardContent>
                                 <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                                    {submission.content}
+                                    {initialSubmission.content}
                                 </p>
                             </CardContent>
                         </Card>
@@ -125,7 +167,7 @@ export default function SubmissionView({ submission }: Props) {
                     {/* RIGHT SIDE */}
                     <div>
 
-                        {fb ? (
+                        {feedback ? (
                             <Card>
 
                                 <CardHeader className="pb-3">
@@ -135,15 +177,15 @@ export default function SubmissionView({ submission }: Props) {
 
                                         <div className="flex items-center gap-2">
 
-                                            <Badge variant={fb.evaluator_type === 'ai' ? 'default' : 'secondary'}>
-                                                {fb.evaluator_type === 'ai'
+                                            <Badge variant={feedback.evaluator_type === 'ai' ? 'default' : 'secondary'}>
+                                                {feedback.evaluator_type === 'ai'
                                                     ? 'AI'
-                                                    : `Tutor: ${fb.evaluator?.name}`}
+                                                    : `Tutor: ${feedback.evaluator?.name}`}
                                             </Badge>
 
-                                            {fb.band_score && (
+                                            {feedback.band_score && (
                                                 <Badge variant="outline" className="text-lg px-3 py-1">
-                                                    Band {fb.band_score}
+                                                    Band {feedback.band_score}
                                                 </Badge>
                                             )}
 
@@ -154,55 +196,73 @@ export default function SubmissionView({ submission }: Props) {
 
                                 <CardContent className="space-y-4 text-sm">
 
-                                    {fb.grammar_feedback && (
+                                    {/* Grammar */}
+                                    {feedback.grammar_feedback && (
                                         <div>
                                             <p className="font-medium mb-1">Grammar</p>
                                             <p className="text-muted-foreground">
-                                                {fb.grammar_feedback}
+                                                {feedback.grammar_feedback}
                                             </p>
                                         </div>
                                     )}
 
-                                    {fb.grammar_breakdown && (
+                                    {/* Grammar Breakdown */}
+                                    {feedback.grammar_breakdown && (
                                         <div>
                                             <p className="font-medium mb-1">Grammar Breakdown</p>
                                             <p className="text-muted-foreground">
-                                                Articles: {fb.grammar_breakdown.articles ?? 0} <br />
-                                                Tenses: {fb.grammar_breakdown.tenses ?? 0} <br />
-                                                Prepositions: {fb.grammar_breakdown.prepositions ?? 0}
+                                                Articles: {feedback.grammar_breakdown.articles ?? 0} <br />
+                                                Tenses: {feedback.grammar_breakdown.tenses ?? 0} <br />
+                                                Prepositions: {feedback.grammar_breakdown.prepositions ?? 0}
                                             </p>
                                         </div>
                                     )}
-                                           
 
-                                    {fb.vocabulary_feedback && (
+                                    {/* Vocabulary */}
+                                    {feedback.vocabulary_feedback && (
                                         <div>
                                             <p className="font-medium mb-1">Vocabulary</p>
                                             <p className="text-muted-foreground">
-                                                {fb.vocabulary_feedback}
+                                                {feedback.vocabulary_feedback}
                                             </p>
                                         </div>
                                     )}
 
-                                    {fb.coherence_feedback && (
+                                    {/* Coherence */}
+                                    {feedback.coherence_feedback && (
                                         <div>
                                             <p className="font-medium mb-1">
                                                 Coherence & Cohesion
                                             </p>
                                             <p className="text-muted-foreground">
-                                                {fb.coherence_feedback}
+                                                {feedback.coherence_feedback}
                                             </p>
                                         </div>
                                     )}
 
-                                    {fb.recommendations && (
+                                    {/* Recommendations */}
+                                    {feedback.recommendations && (
                                         <div>
                                             <p className="font-medium mb-1">
                                                 Recommendations
                                             </p>
                                             <p className="text-muted-foreground">
-                                                {fb.recommendations}
+                                                {feedback.recommendations}
                                             </p>
+                                        </div>
+                                    )}
+
+                                    {/* VIEW DETAILED FEEDBACK BUTTON */}
+                                    {feedback.evaluator_type === 'ai' && (
+                                        <div className="pt-4 text-center">
+                                            <Button
+                                                variant="outline"
+                                                onClick={() =>
+                                                    window.location.href = `/ai-feedback/${initialSubmission.id}`
+                                                }
+                                            >
+                                                View Detailed Feedback
+                                            </Button>
                                         </div>
                                     )}
 
@@ -216,7 +276,7 @@ export default function SubmissionView({ submission }: Props) {
                                         No feedback yet.
                                     </p>
                                     <p className="text-muted-foreground text-sm mt-1">
-                                        A tutor will review your submission soon.
+                                        A tutor will review your submission soon or Click "AI Feedback" to generate AI feedback instantly.
                                     </p>
                                 </CardContent>
                             </Card>

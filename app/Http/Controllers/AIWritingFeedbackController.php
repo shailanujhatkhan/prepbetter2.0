@@ -4,25 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Models\WritingSubmission;
 use App\Models\WritingFeedback;
-use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Http;
 
 class AIWritingFeedbackController extends Controller
 {
     public function generateFeedback($id)
     {
-        // Fetch submission safely
         $submission = WritingSubmission::findOrFail($id);
 
         $text = $submission->content;
 
-        // Call LanguageTool API
-        $response = Http::withoutVerifying()->asForm()->post('https://api.languagetool.org/v2/check', [
-            'text' => $text,
-            'language' => 'en-US'
-        ]);
+        try {
+            $response = Http::withoutVerifying()->asForm()->post('https://api.languagetool.org/v2/check', [
+                'text' => $text,
+                'language' => 'en-US'
+            ]);
 
-        $matches = $response->json()['matches'] ?? [];
+            if ($response->failed()) {
+                return response()->json(['error' => 'Failed to generate feedback'], 500);
+            }
+
+            $matches = $response->json()['matches'] ?? [];
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'API Error: ' . $e->getMessage()], 500);
+        }
 
         $grammarIssues = [];
 
@@ -36,33 +42,52 @@ class AIWritingFeedbackController extends Controller
             ];
         }
 
-        // Simple band score (placeholder logic)
         $bandScore = 7;
 
-        // Store AI feedback in DB (clean + consistent)
-        WritingFeedback::create([
+        $writingFeedback = WritingFeedback::create([
             'writing_submission_id' => $submission->id,
             'evaluator_type' => 'ai',
             'evaluator_id' => null,
             'band_score' => $bandScore,
-
-            // Store as readable string (safe for now)
             'grammar_feedback' => collect($grammarIssues)
                 ->pluck('message')
                 ->filter()
                 ->implode(' | '),
-
             'vocabulary_feedback' => null,
             'coherence_feedback' => null,
             'recommendations' => 'Focus on fixing grammar issues highlighted by AI.',
+            'corrections' => $grammarIssues,  // Save detailed corrections
         ]);
 
-        // Send data to frontend (Inertia page)
+        return response()->json([
+            'success' => true,
+            'feedback' => [
+                'id' => $writingFeedback->id,
+                'evaluator_type' => $writingFeedback->evaluator_type,
+                'band_score' => $writingFeedback->band_score,
+                'grammar_feedback' => $writingFeedback->grammar_feedback,
+                'vocabulary_feedback' => $writingFeedback->vocabulary_feedback,
+                'coherence_feedback' => $writingFeedback->coherence_feedback,
+                'recommendations' => $writingFeedback->recommendations,
+                'evaluator' => null,
+                'created_at' => $writingFeedback->created_at,
+            ]
+        ]);
+    }
+    public function show($id)
+    {
+        $submission = WritingSubmission::with('feedback')->findOrFail($id);
+
+        if (!$submission->feedback) {
+            return response()->json(['error' => 'No feedback found for this submission'], 404);
+        }
+
         return Inertia::render('writingcheck/AIFeedback', [
             'submission' => $submission,
-            'original' => $text,
-            'corrections' => $grammarIssues,
-            'band_score' => $bandScore,
+            'original' => $submission->content,
+            'corrections' => $submission->feedback->corrections ?? [],
+            'band_score' => $submission->feedback->band_score,
+            'recommendations' => $submission->feedback->recommendations,
         ]);
     }
 }

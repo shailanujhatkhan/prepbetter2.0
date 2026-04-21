@@ -82,8 +82,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('writing/{question}/submit', [WritingController::class, 'submit'])->name('writing.submit');
     Route::get('writing/submission/{submission}', [WritingController::class, 'submission'])->name('writing.submission');
 
-    Route::get('ai-feedback/{id}', [AIWritingFeedbackController::class, 'generateFeedback'])->name('ai.feedback');
+    /*
+    |--------------------------------------------------------------------------
+    | AI FEEDBACK (STEP 1 - TRIGGER ONLY)
+    |--------------------------------------------------------------------------
+    */
+    Route::post('ai-feedback/{id}', [AIWritingFeedbackController::class, 'generateFeedback'])
+        ->name('ai.feedback');
 
+    /*
+    |--------------------------------------------------------------------------
+    | AI DETAILED FEEDBACK PAGE
+    |--------------------------------------------------------------------------
+    */
+    Route::get('ai-feedback/{id}', [AIWritingFeedbackController::class, 'show'])
+        ->name('ai.feedback.show');
+
+    /*
+    |--------------------------------------------------------------------------
+    | TASK 2
+    |--------------------------------------------------------------------------
+    */
 
     Route::get('writing/task2', [WritingController::class, 'task2Types'])->name('writing.task2.types');
     Route::get('writing/task2/{essayType}', [WritingController::class, 'task2Questions'])->name('writing.task2.questions');

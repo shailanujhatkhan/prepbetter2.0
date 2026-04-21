@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Api\AudioController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AIWritingFeedbackController; // ✅ ADDED (safe import)
+use App\Http\Controllers\AIWritingFeedbackController;
 
 // ── Public auth (no CSRF required — already excluded for api/*) ───────────────
 
@@ -64,6 +64,7 @@ Route::prefix('api')->middleware(['auth'])->group(function () {
     });
 
     // ── AI FEEDBACK (NEW ROUTE ADDED) ────────────────────────────────────────
-    Route::get('/ai-feedback/{id}', [AIWritingFeedbackController::class, 'generateFeedback']);
+    Route::post('/ai-feedback/{id}', [AIWritingFeedbackController::class, 'generateFeedback']);
+    Route::get('/ai-feedback/{id}', [AIWritingFeedbackController::class, 'show']);
 
 });

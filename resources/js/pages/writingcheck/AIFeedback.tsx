@@ -1,4 +1,12 @@
-import { usePage, router } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
+import AppLayout from '@/layouts/app-layout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import type { Auth, BreadcrumbItem } from '@/types';
+
+const breadcrumbs: BreadcrumbItem[] = [
+  { title: 'AI Feedback', href: '/ai-feedback' },
+];
 
 export default function AIFeedback() {
   const { props } = usePage<any>();
@@ -8,88 +16,119 @@ export default function AIFeedback() {
     original,
     corrections,
     band_score,
+    recommendations,
   } = props;
 
   return (
-    <div className="min-h-screen bg-gray-200 relative py-8 px-10">
+    <AppLayout breadcrumbs={breadcrumbs}>
+      <Head title="AI Feedback" />
 
-      {/* HEADER */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-black">
-          AI Writing Feedback
-        </h1>
-        <p className="text-gray-600 mt-2">
-          grammar analysis powered by AI
-        </p>
-      </div>
+      <div className="flex flex-col gap-8">
 
-      {/* CONTENT */}
-      <div className="flex justify-center">
-        <div className="w-[700px] bg-indigo-50 border border-indigo-100 rounded-2xl p-8">
-
-          {/* ORIGINAL TEXT */}
-          <h2 className="font-bold text-lg text-center mb-4">
-            Original Text
-          </h2>
-
-          <div className="mb-6 bg-white p-4 rounded-xl border">
-            <p className="text-gray-800">
-              {original ?? submission?.content ?? "No text available"}
-            </p>
-          </div>
-
-          {/* BAND SCORE */}
-          {band_score !== undefined && band_score !== null && (
-            <p className="text-center font-semibold mb-4 text-gray-700">
-              Band Score: {band_score}
-            </p>
-          )}
-
-          {/* CORRECTIONS */}
-          <h2 className="font-bold text-lg text-center mb-4">
-            Corrections
-          </h2>
-
-          {Array.isArray(corrections) && corrections.length > 0 ? (
-            corrections.map((c: any, i: number) => (
-              <div key={i} className="bg-white p-4 rounded-xl mb-3 border">
-
-                <p className="text-gray-800">
-                  <b>Issue:</b> {c.message}
-                </p>
-
-                <p className="text-gray-800">
-                  <b>Wrong Text:</b> {c.incorrect_text}
-                </p>
-
-                <p className="text-gray-800">
-                  <b>Suggestions:</b>{' '}
-                  {c.suggestions?.length
-                    ? c.suggestions.map((s: any) => s.value).join(', ')
-                    : 'No suggestions'}
-                </p>
-
-              </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-600">
-              No corrections found 🎉
-            </p>
-          )}
-
+        {/* HEADER */}
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            AI Writing Feedback
+          </h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            Grammar analysis powered by AI
+          </p>
         </div>
-      </div>
 
-      {/* BACK BUTTON */}
-      <div className="fixed bottom-6 right-6">
-        <button
-          onClick={() => router.visit('/dashboard')}
-          className="bg-gray-300 px-5 py-2 rounded-lg text-gray-900 font-semibold hover:bg-gray-400 transition"
-        >
-          Back
-        </button>
-      </div>
+        {/* MAIN CARD */}
+        <div className="max-w-3xl mx-auto w-full">
+          <Card className="shadow-sm">
 
-    </div>
+            <CardContent className="p-6 flex flex-col gap-6">
+
+              {/* ORIGINAL TEXT */}
+              <div>
+                <h2 className="text-lg font-semibold mb-3">
+                  Original Text
+                </h2>
+
+                <div className="border rounded-lg p-4 bg-white">
+                  <p className="text-gray-800">
+                    {original ?? submission?.content ?? "No text available"}
+                  </p>
+                </div>
+              </div>
+
+              {/* BAND SCORE */}
+              {band_score !== null && band_score !== undefined && (
+                <div className="text-center">
+                  <p className="font-semibold text-gray-700">
+                    Band Score: {band_score}
+                  </p>
+                </div>
+              )}
+
+              {/* CORRECTIONS */}
+              <div>
+                <h2 className="text-lg font-semibold mb-3">
+                  Corrections
+                </h2>
+
+                {Array.isArray(corrections) && corrections.length > 0 ? (
+                  <div className="flex flex-col gap-3">
+                    {corrections.map((c: any, i: number) => (
+                      <div key={i} className="border rounded-lg p-4 bg-white">
+
+                        <p className="text-gray-800">
+                          <span className="font-semibold">Issue:</span> {c.message}
+                        </p>
+
+                        <p className="text-gray-800">
+                          <span className="font-semibold">Wrong Text:</span> {c.incorrect_text}
+                        </p>
+
+                        <p className="text-gray-800">
+                          <span className="font-semibold">Suggestions:</span>{' '}
+                          {c.suggestions?.length
+                            ? c.suggestions.map((s: any) => s.value).join(', ')
+                            : 'No suggestions'}
+                        </p>
+
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-sm text-center">
+                    No corrections found 🎉
+                  </p>
+                )}
+              </div>
+
+              {/* RECOMMENDATIONS */}
+              {recommendations && (
+                <div>
+                  <h2 className="text-lg font-semibold mb-3">
+                    Recommendations
+                  </h2>
+
+                  <div className="border rounded-lg p-4 bg-white">
+                    <p className="text-gray-800">
+                      {recommendations}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* BACK BUTTON */}
+        <div className="fixed bottom-6 right-6">
+          <Button
+            variant="secondary"
+            onClick={() => window.history.back()}
+          >
+            Back
+          </Button>
+        </div>
+
+      </div>
+    </AppLayout>
   );
 }
