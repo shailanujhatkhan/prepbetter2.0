@@ -15,7 +15,7 @@ class BookingController extends Controller
         $user = auth()->user();
 
         if (!$user) {
-            return redirect()->route('login');
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         // Validate incoming booking data
@@ -28,21 +28,26 @@ class BookingController extends Controller
 
         // Create booking
         $booking = Booking::create([
+            'user_id' => $user->id,
             'student_name' => $user->name,
             'student_email' => $user->email,
             'tutor_id' => $validated['tutor_id'],
             'specialization' => $validated['specialization'],
-            'scheduled_at' => $validated['scheduled_at'],
+            'scheduled_at' => \Carbon\Carbon::parse($validated['scheduled_at']),
             'payment_method' => $validated['payment_method'],
-            'payment_status' => 'paid',
+            'payment_status' => 'confirmed',
         ]);
 
         // Send confirmation email
-        Mail::to($user->email)->send(
-            new BookingConfirmedMail($booking)
-        );
+        // Mail::to($user->email)->send(
+        //     new BookingConfirmedMail($booking)
+        // );
 
-        // Return back to UI (Inertia-friendly)
-        return redirect()->back()->with('success', 'Booking confirmed successfully!');
+        // Return JSON response for Inertia
+        return response()->json([
+            'success' => true,
+            'message' => 'Booking confirmed successfully!',
+            'booking' => $booking,
+        ]);
     }
 }

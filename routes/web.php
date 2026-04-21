@@ -7,6 +7,7 @@ use App\Http\Controllers\WritingController;
 use App\Http\Controllers\AIWritingFeedbackController;
 use App\Http\Controllers\BookingController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use Laravel\Fortify\Features;
 use App\Models\Tutor;
 use Inertia\Inertia;
@@ -38,12 +39,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('book-tutor', function () {
-        return Inertia::render('bookings/home');
-    })->name('book.tutor.home');
-
     Route::get('speaking', function () {
-        return Inertia::render('bookings/home');
+        return 
+        redirect()->route('book.tutor.list', ['type' => 'speaking']);
     })->name('speaking');
 
     Route::get('book-tutor/{type}', function ($type) {
@@ -57,8 +55,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     })->name('book.tutor.list');
 
-    Route::get('payment-method', function () {
-        return Inertia::render('payment-method');
+    Route::get('payment-method', function (Request $request) {
+        return Inertia::render('payment-method', [
+            'tutorId' => $request->tutorId,
+            'tutorName' => $request->tutorName,
+            'specialization' => $request->specialization,
+            'selectedSlot' => $request->selectedSlot,
+        ]);
     })->name('payment.method');
 
     /*

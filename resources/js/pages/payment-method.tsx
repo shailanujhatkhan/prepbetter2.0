@@ -1,5 +1,12 @@
-import { router, usePage } from '@inertiajs/react';
+import { router, usePage, Head } from '@inertiajs/react';
+import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import type { BreadcrumbItem } from '@/types';
+
+const breadcrumbs: BreadcrumbItem[] = [
+  { title: 'Payment', href: '/payment-method' },
+];
 
 export default function PaymentMethod() {
   const { props } = usePage<any>();
@@ -31,81 +38,85 @@ export default function PaymentMethod() {
   };
 
   return (
-    <div className="flex flex-col gap-8 p-8">
+    <AppLayout breadcrumbs={breadcrumbs}>
+      <Head title="Payment Method" />
 
-      {/* HEADER */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Payment Method
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          Complete your booking with a payment option
-        </p>
-      </div>
+      <div className="flex flex-col gap-8">
 
-      {/* SELECTED INFO */}
-      <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-        {tutorName && (
-          <p>
-            <span className="font-medium text-black">Tutor:</span> {tutorName}
+        {/* HEADER */}
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Payment Method
+          </h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            Complete your booking with a payment option
           </p>
-        )}
+        </div>
 
-        {specialization && (
-          <p>
-            <span className="font-medium text-black">Subject:</span> {specialization}
-          </p>
-        )}
+        {/* INFO CARD */}
+        <div className="max-w-2xl mx-auto w-full">
+          <Card>
 
-        {selectedSlot && (
-          <p>
-            <span className="font-medium text-black">Slot:</span> {selectedSlot}
-          </p>
-        )}
+            <CardContent className="p-6 flex flex-col gap-3 text-sm">
+
+              {tutorName && (
+                <p>
+                  <span className="font-medium">Tutor:</span>{' '}
+                  <span className="text-muted-foreground">{tutorName}</span>
+                </p>
+              )}
+
+              {specialization && (
+                <p>
+                  <span className="font-medium">Subject:</span>{' '}
+                  <span className="text-muted-foreground">{specialization}</span>
+                </p>
+              )}
+
+              {selectedSlot && (
+                <p>
+                  <span className="font-medium">Slot:</span>{' '}
+                  <span className="text-muted-foreground">{selectedSlot}</span>
+                </p>
+              )}
+
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* PAYMENT CARD */}
+        <div className="max-w-2xl mx-auto w-full">
+          <Card className="hover:shadow-md transition">
+
+            <CardHeader>
+              <CardTitle>Choose Payment Method</CardTitle>
+              <CardDescription>
+                Select how you want to complete your booking
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="flex flex-col gap-3">
+
+              <Button onClick={() => createBooking("Card")}>
+                Pay with Card
+              </Button>
+
+            </CardContent>
+
+          </Card>
+        </div>
+
+        {/* BACK BUTTON */}
+        <div className="fixed bottom-6 right-6">
+          <Button
+            variant="secondary"
+            onClick={() => window.history.back()}
+          >
+            Back
+          </Button>
+        </div>
+
       </div>
-
-      {/* PAYMENT CARD */}
-      <div className="flex justify-center">
-        <Card className="w-[520px] hover:shadow-md transition">
-
-          <CardHeader>
-            <CardTitle>Choose Payment Method</CardTitle>
-            <CardDescription>
-              Select how you want to complete your booking
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="flex gap-4">
-
-            <button
-              onClick={() => createBooking("Bkash")}
-              className="flex-1 bg-primary text-white py-3 rounded-lg hover:opacity-90 transition"
-            >
-              Bkash
-            </button>
-
-            <button
-              onClick={() => createBooking("Bank Transfer")}
-              className="flex-1 bg-gray-800 text-white py-3 rounded-lg hover:bg-gray-900 transition"
-            >
-              Bank Transfer
-            </button>
-
-          </CardContent>
-
-        </Card>
-      </div>
-
-      {/* BACK */}
-      <div className="fixed bottom-6 right-6">
-        <button
-          onClick={() => router.visit('/book-tutor')}
-          className="bg-gray-200 px-4 py-2 rounded-lg text-gray-900 font-semibold hover:bg-gray-300"
-        >
-          Back
-        </button>
-      </div>
-
-    </div>
+    </AppLayout>
   );
 }

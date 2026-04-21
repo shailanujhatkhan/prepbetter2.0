@@ -1,142 +1,153 @@
 import { useState } from 'react';
-import { router } from '@inertiajs/react';
+import { router, Head } from '@inertiajs/react';
+import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import type { BreadcrumbItem } from '@/types';
+
+const breadcrumbs: BreadcrumbItem[] = [
+  { title: 'Tutors', href: '/book-tutor' },
+];
 
 export default function TutorList({ type, tutors }: any) {
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<Record<number, string>>({});
+
+  // ✅ clean helper (fixes red underline issue + improves structure)
+  const getSlots = (tutor: any): string[] => {
+    try {
+      const data =
+        typeof tutor.availability === 'string'
+          ? JSON.parse(tutor.availability)
+          : tutor.availability;
+
+      return Object.values(data || {}).flat() as string[];
+    } catch {
+      return [];
+    }
+  };
 
   const filteredTutors = (tutors ?? []).filter((tutor: any) =>
     tutor.specialization?.toLowerCase().includes(type?.toLowerCase())
   );
 
   const handleBooking = (tutor: any) => {
-    if (!selectedSlot) {
-      alert("Please select a slot first");
+    if (!selectedSlot[tutor.id]) {
+      alert('Please select a slot first');
       return;
     }
 
-    // 
     router.get('/payment-method', {
       tutorId: tutor.id,
       tutorName: tutor.name,
       specialization: tutor.specialization,
-      selectedSlot,
+      selectedSlot: selectedSlot[tutor.id],
     });
   };
 
   return (
-    <div className="flex flex-col gap-6 p-8">
+    <AppLayout breadcrumbs={breadcrumbs}>
+      <Head title="Tutors" />
 
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          {type?.toUpperCase()} Tutors
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          Select a tutor and available time slot
-        </p>
-      </div>
+      <div className="flex flex-col gap-8">
 
-      <div className="flex flex-col gap-4 max-h-[75vh] overflow-y-auto pr-2">
-
-        {filteredTutors?.length === 0 && (
-          <p className="text-muted-foreground">
-            No tutors available.
+        {/* HEADER */}
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {type?.toUpperCase()} Tutors
+          </h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            Select a tutor and available time slot
           </p>
-        )}
+        </div>
 
-        {filteredTutors?.map((tutor: any) => (
-          <Card key={tutor.id} className="hover:shadow-md transition">
+        {/* GRID */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
-            <CardHeader>
-              <CardTitle className="text-lg">
-                {tutor.name}
-              </CardTitle>
+          {filteredTutors?.length === 0 && (
+            <p className="text-muted-foreground">
+              No tutors available.
+            </p>
+          )}
 
-              <CardDescription>
-                {tutor.specialization} · ⭐ {tutor.rating ?? 'N/A'} · {tutor.experience} yrs
-              </CardDescription>
-            </CardHeader>
+          {filteredTutors?.map((tutor: any) => {
+            const slots = getSlots(tutor);
 
-            <CardContent className="flex flex-col gap-4">
+            return (
+              <Card key={tutor.id} className="hover:shadow-md transition">
 
-              <div>
-                <p className="text-sm font-medium mb-2">
-                  Available Slots
-                </p>
+                <CardHeader>
+                  <CardTitle className="text-lg">
+                    {tutor.name}
+                  </CardTitle>
 
-                <div className="flex flex-wrap gap-2">
+                  <CardDescription>
+                    {tutor.specialization} · ⭐ {tutor.rating ?? 'N/A'} · {tutor.experience} yrs
+                  </CardDescription>
+                </CardHeader>
 
-                  {(() => {
-                    try {
-                      const data =
-                        typeof tutor.availability === "string"
-                          ? JSON.parse(tutor.availability)
-                          : tutor.availability;
+                <CardContent className="flex flex-col gap-4">
 
-                      const slots = Object.values(data || {}).flat();
+                  {/* SLOTS */}
+                  <div>
+                    <p className="text-sm font-medium mb-2">
+                      Available Slots
+                    </p>
 
-                      if (!slots.length) {
-                        return (
-                          <p className="text-muted-foreground text-sm">
-                            No slots available
-                          </p>
-                        );
-                      }
+                    <div className="flex flex-wrap gap-2">
 
-                      return slots.map((slot: string, i: number) => {
-                        const key = `${tutor.id}-${slot}`;
-
-                        return (
+                      {!slots.length ? (
+                        <p className="text-muted-foreground text-sm">
+                          No slots available
+                        </p>
+                      ) : (
+                        slots.map((slot: string, i: number) => (
                           <button
                             key={i}
-                            onClick={() => setSelectedSlot(key)}
+                            onClick={() =>
+                              setSelectedSlot((prev) => ({
+                                ...prev,
+                                [tutor.id]: slot,
+                              }))
+                            }
                             className={`
                               px-3 py-1 rounded-full text-sm border transition
                               ${
-                                selectedSlot === key
-                                  ? "bg-primary text-white border-primary"
-                                  : "bg-white text-gray-700 border-gray-300 hover:bg-muted"
+                                selectedSlot[tutor.id] === slot
+                                  ? 'bg-primary text-white border-primary'
+                                  : 'bg-background text-foreground border-border hover:bg-muted'
                               }
                             `}
                           >
                             {slot}
                           </button>
-                        );
-                      });
+                        ))
+                      )}
 
-                    } catch {
-                      return (
-                        <p className="text-muted-foreground text-sm">
-                          Invalid availability
-                        </p>
-                      );
-                    }
-                  })()}
+                    </div>
+                  </div>
 
-                </div>
-              </div>
+                  {/* ACTION */}
+                  <Button onClick={() => handleBooking(tutor)}>
+                    Confirm Booking
+                  </Button>
 
-              <button
-                onClick={() => handleBooking(tutor)}
-                className="bg-primary text-white px-4 py-2 rounded-lg hover:opacity-90 transition"
-              >
-                Confirm Booking
-              </button>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
 
-            </CardContent>
-          </Card>
-        ))}
+        {/* BACK BUTTON */}
+        <div className="fixed bottom-6 right-6">
+          <Button
+            variant="secondary"
+            onClick={() => window.history.back()}
+          >
+            Back
+          </Button>
+        </div>
+
       </div>
-
-      <div className="fixed bottom-6 right-6">
-        <button
-          onClick={() => router.visit('/book-tutor')}
-          className="bg-gray-200 px-4 py-2 rounded-lg text-gray-900 font-semibold hover:bg-gray-300"
-        >
-          Back
-        </button>
-      </div>
-
-    </div>
+    </AppLayout>
   );
 }
