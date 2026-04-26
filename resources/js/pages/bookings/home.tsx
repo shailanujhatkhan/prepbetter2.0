@@ -44,6 +44,19 @@ export default function Home() {
           </CardContent>
         </Card>
 
+        {/* LISTENING */}
+        <Card
+          onClick={() => router.visit("/book-tutor/listening")}
+          className="cursor-pointer transition-shadow hover:shadow-md"
+        >
+          <CardHeader className="text-center">
+            <CardTitle>Listening</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center text-muted-foreground">
+            Book listening practice sessions
+          </CardContent>
+        </Card>
+
       </div>
 
       {/* Back button (dashboard style muted button) */}

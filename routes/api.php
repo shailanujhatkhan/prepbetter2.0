@@ -1,9 +1,14 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\ReadingQuestionController as AdminReadingController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\Admin\WritingQuestionController as AdminWritingQuestionController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BookingController as ApiBookingController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\ListeningController as ApiListeningController;
+use App\Http\Controllers\Api\ReadingController as ApiReadingController;
+use App\Http\Controllers\Api\Tutor\AvailabilityController as TutorAvailabilityApiController;
 use App\Http\Controllers\Api\Tutor\ReviewController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\WritingController;
@@ -50,20 +55,42 @@ Route::prefix('api')->middleware(['auth'])->group(function () {
         Route::get('/guides/{taskType}/{essayType}', [WritingController::class, 'guideSteps']);
     });
 
+    // ── Listening ─────────────────────────────────────────────────────────────
+    Route::prefix('listening')->group(function () {
+        Route::get('/', [ApiListeningController::class, 'index']);
+        Route::get('/{listening}', [ApiListeningController::class, 'show']);
+    });
+
+    // ── Reading ───────────────────────────────────────────────────────────────
+    Route::prefix('reading')->group(function () {
+        Route::get('/', [ApiReadingController::class, 'index']);
+        Route::get('/{reading}', [ApiReadingController::class, 'show']);
+    });
+
+    // ── Bookings ──────────────────────────────────────────────────────────────
+    Route::prefix('bookings')->group(function () {
+        Route::get('/tutors', [ApiBookingController::class, 'tutors']);
+        Route::get('/', [ApiBookingController::class, 'index']);
+        Route::post('/', [ApiBookingController::class, 'store']);
+    });
+
     // ── Tutor (tutor + admin) ─────────────────────────────────────────────────
     Route::prefix('tutor')->middleware(['role:tutor,admin'])->group(function () {
         Route::get('/reviews', [ReviewController::class, 'index']);
         Route::get('/reviews/{submission}', [ReviewController::class, 'show']);
         Route::post('/reviews/{submission}/feedback', [ReviewController::class, 'store']);
+        Route::get('/availability', [TutorAvailabilityApiController::class, 'index']);
+        Route::put('/availability', [TutorAvailabilityApiController::class, 'update']);
     });
 
     // ── Admin ─────────────────────────────────────────────────────────────────
     Route::prefix('admin')->middleware(['role:admin'])->group(function () {
         Route::apiResource('/users', AdminUserController::class);
         Route::apiResource('/writing-questions', AdminWritingQuestionController::class);
+        Route::apiResource('/reading-questions', AdminReadingController::class);
     });
 
-    // ── AI FEEDBACK (NEW ROUTE ADDED) ────────────────────────────────────────
+    // ── AI FEEDBACK ───────────────────────────────────────────────────────────
     Route::post('/ai-feedback/{id}', [AIWritingFeedbackController::class, 'generateFeedback']);
     Route::get('/ai-feedback/{id}', [AIWritingFeedbackController::class, 'show']);
 
