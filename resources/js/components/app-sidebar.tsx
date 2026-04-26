@@ -1,6 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
-    BarChart3,
     BookOpen,
     ClipboardList,
     Ear,
@@ -42,7 +41,6 @@ const navSections: NavSection[] = [
             { title: 'Listening', href: '/listening', icon: Ear },
             { title: 'Reading', href: '/reading', icon: BookOpen },
             { title: 'Speaking', href: '/speaking', icon: Mic },
-            { title: 'Progress', href: '/progress', icon: BarChart3 },
         ],
     },
     {
@@ -60,8 +58,8 @@ const navSections: NavSection[] = [
         items: [
             { title: 'Users', href: '/admin/users', icon: Users },
             { title: 'Writing Questions', href: '/admin/writing-questions', icon: PenTool },
-            { title: 'Listening Questions', href: '/admin/listening-questions', icon: Ear },
-            { title: 'Reading Passages', href: '/admin/reading-passages', icon: BookOpen },
+            { title: 'Listening Questions', href: '/admin/listening', icon: Ear },
+            { title: 'Reading Questions', href: '/admin/reading', icon: BookOpen },
         ],
     },
 ];
@@ -98,3 +96,4 @@ export function AppSidebar() {
         </Sidebar>
     );
 }
+

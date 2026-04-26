@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tutor;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -41,42 +42,97 @@ class UserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8'],
-            'role' => ['required', 'string', Rule::in(['student', 'tutor', 'admin'])],
+            'name'           => ['required', 'string', 'max:255'],
+            'email'          => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password'       => ['required', 'string', 'min:8'],
+            'role'           => ['required', 'string', Rule::in(['student', 'tutor', 'admin'])],
+            'specialization' => ['nullable', 'string', Rule::in(['speaking', 'writing', 'listening', 'reading'])],
+            'band'           => ['nullable', 'numeric', 'min:0', 'max:9'],
+            'experience'     => ['nullable', 'integer', 'min:0'],
+            'rating'         => ['nullable', 'numeric', 'min:0', 'max:5'],
         ]);
 
-        $validated['password'] = Hash::make($validated['password']);
+        $tutorFields = [
+            'specialization' => $validated['specialization'] ?? null,
+            'band'           => $validated['band'] ?? null,
+            'experience'     => $validated['experience'] ?? null,
+            'rating'         => $validated['rating'] ?? null,
+        ];
 
-        User::create($validated);
+        $user = User::create([
+            'name'     => $validated['name'],
+            'email'    => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role'     => $validated['role'],
+        ]);
+
+        if ($user->role === 'tutor') {
+            $tutor = Tutor::firstOrCreate(
+                ['email' => $user->email],
+                ['name' => $user->name, 'user_id' => $user->id, ...$tutorFields]
+            );
+            if (!$tutor->user_id) {
+                $tutor->update(['user_id' => $user->id, ...$tutorFields]);
+            }
+        }
 
         return redirect()->route('admin.users.index')->with('success', 'User created.');
     }
 
     public function edit(User $user): Response
     {
+        $tutor = $user->tutor?->only(['specialization', 'band', 'experience', 'rating']);
+
         return Inertia::render('admin/users/edit', [
-            'editUser' => $user->only('id', 'name', 'email', 'role'),
+            'editUser' => [
+                ...$user->only('id', 'name', 'email', 'role'),
+                'tutor' => $tutor,
+            ],
         ]);
     }
 
     public function update(Request $request, User $user): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'password' => ['nullable', 'string', 'min:8'],
-            'role' => ['required', 'string', Rule::in(['student', 'tutor', 'admin'])],
+            'name'           => ['required', 'string', 'max:255'],
+            'email'          => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'password'       => ['nullable', 'string', 'min:8'],
+            'role'           => ['required', 'string', Rule::in(['student', 'tutor', 'admin'])],
+            'specialization' => ['nullable', 'string', Rule::in(['speaking', 'writing', 'listening', 'reading'])],
+            'band'           => ['nullable', 'numeric', 'min:0', 'max:9'],
+            'experience'     => ['nullable', 'integer', 'min:0'],
+            'rating'         => ['nullable', 'numeric', 'min:0', 'max:5'],
         ]);
 
-        if (empty($validated['password'])) {
-            unset($validated['password']);
-        } else {
-            $validated['password'] = Hash::make($validated['password']);
+        $tutorFields = [
+            'specialization' => $validated['specialization'] ?? null,
+            'band'           => $validated['band'] ?? null,
+            'experience'     => $validated['experience'] ?? null,
+            'rating'         => $validated['rating'] ?? null,
+        ];
+
+        $userUpdate = [
+            'name'  => $validated['name'],
+            'email' => $validated['email'],
+            'role'  => $validated['role'],
+        ];
+        if (!empty($validated['password'])) {
+            $userUpdate['password'] = Hash::make($validated['password']);
         }
 
-        $user->update($validated);
+        $user->update($userUpdate);
+
+        if ($user->role === 'tutor') {
+            $tutor = Tutor::firstOrCreate(
+                ['email' => $user->email],
+                ['name' => $user->name, 'user_id' => $user->id, ...$tutorFields]
+            );
+            if (!$tutor->user_id) {
+                $tutor->update(['user_id' => $user->id, ...$tutorFields]);
+            } else {
+                $tutor->update($tutorFields);
+            }
+        }
 
         return redirect()->route('admin.users.index')->with('success', 'User updated.');
     }

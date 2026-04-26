@@ -40,6 +40,11 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    public function tutor(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Tutor::class);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

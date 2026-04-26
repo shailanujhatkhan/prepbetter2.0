@@ -31,11 +31,16 @@ class ReviewController extends Controller
     public function store(Request $request, WritingSubmission $submission): JsonResponse
     {
         $validated = $request->validate([
-            'band_score' => ['required', 'numeric', 'min:0', 'max:9'],
-            'grammar_feedback' => ['required', 'string'],
-            'vocabulary_feedback' => ['required', 'string'],
-            'coherence_feedback' => ['required', 'string'],
-            'recommendations' => ['required', 'string'],
+            'band_score'                       => ['required', 'numeric', 'min:0', 'max:9'],
+            'grammar_feedback'                 => ['required', 'string'],
+            'vocabulary_feedback'              => ['required', 'string'],
+            'coherence_feedback'               => ['required', 'string'],
+            'recommendations'                  => ['required', 'string'],
+            'grammar_breakdown'                => ['nullable', 'array'],
+            'grammar_breakdown.articles'       => ['nullable', 'integer', 'min:0'],
+            'grammar_breakdown.tenses'         => ['nullable', 'integer', 'min:0'],
+            'grammar_breakdown.prepositions'   => ['nullable', 'integer', 'min:0'],
+            'grammar_breakdown.subject_verb'   => ['nullable', 'integer', 'min:0'],
         ]);
 
         $feedback = WritingFeedback::updateOrCreate(

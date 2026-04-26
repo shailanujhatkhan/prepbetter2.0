@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -51,7 +51,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function SubmissionView({ submission: initialSubmission }: Props) {
-    const { props } = usePage<any>();
     const [feedback, setFeedback] = useState<Feedback | null>(initialSubmission.feedback);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -61,11 +60,12 @@ export default function SubmissionView({ submission: initialSubmission }: Props)
         setError(null);
 
         try {
+            const csrfToken = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '';
             const response = await fetch(`/api/ai-feedback/${initialSubmission.id}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-Token': props.csrf_token || '',
+                    'X-CSRF-TOKEN': csrfToken,
                 },
             });
 
@@ -288,3 +288,4 @@ export default function SubmissionView({ submission: initialSubmission }: Props)
         </AppLayout>
     );
 }
+

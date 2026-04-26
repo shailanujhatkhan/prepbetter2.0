@@ -33,6 +33,19 @@ class DashboardController extends Controller
             $stats['averageBandScore'] = WritingFeedback::whereHas('submission', function ($q) use ($user) {
                 $q->where('user_id', $user->id);
             })->avg('band_score');
+
+            $heatmap = ['articles' => 0, 'tenses' => 0, 'prepositions' => 0, 'subject_verb' => 0];
+            WritingSubmission::with('feedback')->where('user_id', $user->id)->get()
+                ->each(function ($s) use (&$heatmap) {
+                    $b = $s->feedback?->grammar_breakdown;
+                    if ($b) {
+                        $heatmap['articles']     += $b['articles']     ?? 0;
+                        $heatmap['tenses']       += $b['tenses']       ?? 0;
+                        $heatmap['prepositions'] += $b['prepositions'] ?? 0;
+                        $heatmap['subject_verb'] += $b['subject_verb'] ?? 0;
+                    }
+                });
+            $stats['grammarHeatmap'] = $heatmap;
         }
 
         if ($user->isTutor() || $user->isAdmin()) {

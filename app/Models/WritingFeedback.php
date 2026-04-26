@@ -15,6 +15,7 @@ class WritingFeedback extends Model
         'evaluator_id',
         'band_score',
         'grammar_feedback',
+        'grammar_breakdown',
         'vocabulary_feedback',
         'coherence_feedback',
         'recommendations',
@@ -35,3 +36,4 @@ class WritingFeedback extends Model
         return $this->belongsTo(User::class, 'evaluator_id');
     }
 }
+

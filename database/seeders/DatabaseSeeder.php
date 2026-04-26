@@ -7,7 +7,6 @@ use App\Models\WritingFeedback;
 use App\Models\WritingQuestion;
 use App\Models\WritingSubmission;
 use Illuminate\Database\Seeder;
-use Database\Seeders\TutorSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,13 +17,6 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin User',
             'email' => 'admin@ielts.test',
             'role' => 'admin',
-        ]);
-
-        // Tutor user
-        $tutor = User::factory()->create([
-            'name' => 'Tutor User',
-            'email' => 'tutor@ielts.test',
-            'role' => 'tutor',
         ]);
 
         // Student user
@@ -42,11 +34,13 @@ class DatabaseSeeder extends Seeder
 
         $this->call(WritingQuestionSeeder::class);
 
-        // 👉 SAFE ADDITION (your booking system)
         $this->call(TutorSeeder::class);
+        $this->call(ListeningQuestionSeeder::class);
+        $this->call(ReadingQuestionSeeder::class);
 
         // Seed demo submissions and feedback for the complete flow
         $questions = WritingQuestion::all();
+        $tutor = \App\Models\User::where('email', 'tutor@ielts.test')->first();
 
         // Submission 1: Reviewed by tutor (complete flow)
         $submission1 = WritingSubmission::create([

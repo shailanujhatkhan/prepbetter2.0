@@ -41,10 +41,11 @@ class ReviewController extends Controller
             'coherence_feedback' => ['required', 'string'],
             'recommendations' => ['required', 'string'],
 
-            'grammar_breakdown' => ['nullable', 'array'],
-            'grammar_breakdown.articles' => ['nullable', 'integer'],
-            'grammar_breakdown.tenses' => ['nullable', 'integer'],
-            'grammar_breakdown.prepositions' => ['nullable', 'integer'],
+            'grammar_breakdown'                => ['nullable', 'array'],
+            'grammar_breakdown.articles'       => ['nullable', 'integer', 'min:0'],
+            'grammar_breakdown.tenses'         => ['nullable', 'integer', 'min:0'],
+            'grammar_breakdown.prepositions'   => ['nullable', 'integer', 'min:0'],
+            'grammar_breakdown.subject_verb'   => ['nullable', 'integer', 'min:0'],
         ]);
 
         WritingFeedback::updateOrCreate(

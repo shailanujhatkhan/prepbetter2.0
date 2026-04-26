@@ -20,6 +20,12 @@ type Props = {
         name: string;
         email: string;
         role: string;
+        tutor?: {
+            specialization: string | null;
+            band: string | null;
+            experience: string | null;
+            rating: string | null;
+        } | null;
     };
 };
 
@@ -29,6 +35,10 @@ export default function EditUser({ editUser }: Props) {
         email: editUser.email,
         password: '',
         role: editUser.role,
+        specialization: editUser.tutor?.specialization ?? 'speaking',
+        band: editUser.tutor?.band ?? '',
+        experience: editUser.tutor?.experience ?? '',
+        rating: editUser.tutor?.rating ?? '',
     });
 
     const submit = (e: React.FormEvent) => {
@@ -97,6 +107,69 @@ export default function EditUser({ editUser }: Props) {
                                 </Select>
                                 <InputError message={errors.role} />
                             </div>
+
+                            {data.role === 'tutor' && (
+                                <>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="specialization">Specialization</Label>
+                                        <Select value={data.specialization} onValueChange={(v) => setData('specialization', v)}>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="speaking">Speaking</SelectItem>
+                                                <SelectItem value="writing">Writing</SelectItem>
+                                                <SelectItem value="listening">Listening</SelectItem>
+                                                <SelectItem value="reading">Reading</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <InputError message={(errors as any).specialization} />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="band">Band Score</Label>
+                                        <Input
+                                            id="band"
+                                            type="number"
+                                            step="0.5"
+                                            min="0"
+                                            max="9"
+                                            placeholder="e.g. 8.5"
+                                            value={data.band}
+                                            onChange={(e) => setData('band', e.target.value)}
+                                        />
+                                        <InputError message={(errors as any).band} />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="experience">Years of Experience</Label>
+                                        <Input
+                                            id="experience"
+                                            type="number"
+                                            min="0"
+                                            placeholder="e.g. 5"
+                                            value={data.experience}
+                                            onChange={(e) => setData('experience', e.target.value)}
+                                        />
+                                        <InputError message={(errors as any).experience} />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="rating">Rating (0–5)</Label>
+                                        <Input
+                                            id="rating"
+                                            type="number"
+                                            step="0.1"
+                                            min="0"
+                                            max="5"
+                                            placeholder="e.g. 4.8"
+                                            value={data.rating}
+                                            onChange={(e) => setData('rating', e.target.value)}
+                                        />
+                                        <InputError message={(errors as any).rating} />
+                                    </div>
+                                </>
+                            )}
 
                             <div className="flex gap-3">
                                 <Button type="submit" disabled={processing}>

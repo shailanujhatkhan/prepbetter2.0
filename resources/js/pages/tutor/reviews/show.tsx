@@ -27,6 +27,7 @@ type Feedback = {
     evaluator_type: string;
     band_score: number | null;
     grammar_feedback: string | null;
+    grammar_breakdown?: { articles: number; prepositions: number; tenses: number; subject_verb: number } | null;
     vocabulary_feedback: string | null;
     coherence_feedback: string | null;
     recommendations: string | null;
@@ -57,12 +58,20 @@ type Props = {
 export default function ReviewShow({ submission }: Props) {
     const existing = submission.feedback;
 
+    const existingBreakdown = (existing as any)?.grammar_breakdown ?? {};
+
     const { data, setData, post, processing, errors } = useForm({
         band_score: existing?.band_score?.toString() || '',
         grammar_feedback: existing?.grammar_feedback || '',
         vocabulary_feedback: existing?.vocabulary_feedback || '',
         coherence_feedback: existing?.coherence_feedback || '',
         recommendations: existing?.recommendations || '',
+        grammar_breakdown: {
+            articles: existingBreakdown.articles ?? 0,
+            prepositions: existingBreakdown.prepositions ?? 0,
+            tenses: existingBreakdown.tenses ?? 0,
+            subject_verb: existingBreakdown.subject_verb ?? 0,
+        },
     });
 
     const submit = (e: React.FormEvent) => {
@@ -190,6 +199,35 @@ export default function ReviewShow({ submission }: Props) {
                                     <InputError
                                         message={errors.grammar_feedback}
                                     />
+                                </div>
+
+                                {/* Grammar Breakdown */}
+                                <div className="space-y-2">
+                                    <Label>Grammar Error Counts</Label>
+                                    <p className="text-xs text-muted-foreground">
+                                        Count errors per category — updates student dashboard heatmap
+                                    </p>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {(['articles', 'prepositions', 'tenses', 'subject_verb'] as const).map((key) => (
+                                            <div key={key} className="space-y-1">
+                                                <Label htmlFor={key} className="capitalize text-xs">
+                                                    {key.replace('_', ' ')}
+                                                </Label>
+                                                <Input
+                                                    id={key}
+                                                    type="number"
+                                                    min="0"
+                                                    value={data.grammar_breakdown[key]}
+                                                    onChange={(e) =>
+                                                        setData('grammar_breakdown', {
+                                                            ...data.grammar_breakdown,
+                                                            [key]: parseInt(e.target.value) || 0,
+                                                        })
+                                                    }
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
 
                                 <div className="space-y-2">

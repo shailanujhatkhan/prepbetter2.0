@@ -1,6 +1,8 @@
 import { Head, Link, usePage } from '@inertiajs/react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer } from 'recharts';
 import {
     BookOpen,
+    CalendarCheck,
     CheckCircle,
     Clock,
     Ear,
@@ -11,12 +13,10 @@ import {
     Star,
     Users,
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import type { Auth, BreadcrumbItem, UserRole } from '@/types';
 import type { LucideIcon } from 'lucide-react';
-import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: '/dashboard' }];
 
@@ -36,10 +36,11 @@ type Stats = {
     pendingSubmissions?: number;
     averageBandScore?: number | null;
     grammarHeatmap?: {
-    articles: number;
-    tenses: number;
-    prepositions: number;
-};
+        articles: number;
+        tenses: number;
+        prepositions: number;
+        subject_verb: number;
+    };
     submissionsNeedingReview?: number;
     totalReviewedSubmissions?: number;
     recentSubmissions?: Submission[];
@@ -84,6 +85,14 @@ const sections: DashboardSection[] = [
         ],
     },
     {
+        heading: 'My Sessions',
+        subtitle: 'View and manage your booked speaking sessions.',
+        roles: ['student'],
+        cards: [
+            { title: 'My Bookings', description: 'View upcoming & past speaking sessions', href: '/my-bookings', icon: CalendarCheck },
+        ],
+    },
+    {
         heading: 'Tutor Panel',
         subtitle: 'Manage essay reviews and speaking sessions.',
         roles: ['tutor', 'admin'],
@@ -99,6 +108,8 @@ const sections: DashboardSection[] = [
         cards: [
             { title: 'Users', description: 'Manage users and assign roles', href: '/admin/users', icon: Users },
             { title: 'Writing Questions', description: 'Manage Task 1 & Task 2 questions', href: '/admin/writing-questions', icon: PenTool },
+            { title: 'Reading Questions', description: 'Manage reading passage MCQs', href: '/admin/reading', icon: BookOpen },
+            { title: 'Bookings', description: 'Review and approve payment bookings', href: '/admin/bookings', icon: CalendarCheck },
         ],
     },
 ];
@@ -142,21 +153,10 @@ function StatCard({
 }
 
 export default function Dashboard() {
-    
-const getColor = (value: number) => {
-    if (value === 0) return "bg-green-100 text-green-800";
-    if (value <= 2) return "bg-green-200 text-green-900";
-    if (value <= 4) return "bg-yellow-200 text-yellow-900";
-    if (value <= 6) return "bg-orange-200 text-orange-900";
-    return "bg-red-300 text-red-900";
-};
     const { auth, stats } = usePage<{ auth: Auth; stats: Stats }>().props;
-    const [demoMode, setDemoMode] = useState(false);
     const role = auth.user.role;
     const visibleSections = sections.filter((s) => s.roles.includes(role));
-const heatmap = demoMode
-    ? { articles: 5, tenses: 2, prepositions: 10 }
-    : (stats.grammarHeatmap ?? { articles: 0, tenses: 0, prepositions: 0 });
+    const heatmap = stats.grammarHeatmap ?? { articles: 0, tenses: 0, prepositions: 0, subject_verb: 0 };
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -191,36 +191,40 @@ const heatmap = demoMode
                     </div>
                 )}
                 {role === 'student' && (
-                    <>
-<button
-    onClick={() => setDemoMode(!demoMode)}
-    className="mb-3 px-3 py-1 bg-black text-white rounded"
->
-    Toggle Demo Heatmap
-</button>
-                    <div className="p-4 border rounded-lg shadow-sm bg-white">
-                        <h2 className="text-lg font-semibold mb-4">
-                            Grammar Heatmap Analysis
-                        </h2>
+                    <div className="p-4 border rounded-lg shadow-sm bg-white dark:bg-transparent">
+                        <h2 className="text-lg font-semibold mb-1">Grammar Error Heatmap</h2>
+                        <p className="text-sm text-muted-foreground mb-4">Total errors across all reviewed submissions</p>
 
-                        <div className="grid grid-cols-3 gap-3">
-                            <div className={`p-4 rounded-lg text-center transition-all ${getColor(heatmap.articles)}`}>
-                                <p className="font-medium">Articles</p>
-                                <p className="text-2xl font-bold">{heatmap.articles}</p>
-                            </div>
+                        <ResponsiveContainer width="100%" height={220}>
+                            <BarChart
+                                data={[
+                                    { name: 'Articles', value: heatmap.articles ?? 0 },
+                                    { name: 'Tenses', value: heatmap.tenses ?? 0 },
+                                    { name: 'Prepositions', value: heatmap.prepositions ?? 0 },
+                                    { name: 'Subject-Verb', value: heatmap.subject_verb ?? 0 },
+                                ]}
+                                margin={{ top: 8, right: 16, left: 0, bottom: 0 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                <XAxis dataKey="name" tick={{ fontSize: 13 }} />
+                                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                                <Tooltip formatter={(v: number) => [v, 'Errors']} />
+                                <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={64}>
+                                    {[heatmap.articles, heatmap.tenses, heatmap.prepositions, heatmap.subject_verb].map((v, i) => (
+                                        <Cell key={i} fill={v === 0 ? '#86efac' : v <= 2 ? '#4ade80' : v <= 4 ? '#facc15' : v <= 6 ? '#fb923c' : '#f87171'} />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
 
-                            <div className={`p-4 rounded-lg text-center transition-all ${getColor(heatmap.tenses)}`}>
-                                <p className="font-medium">Tenses</p>
-                                <p className="text-2xl font-bold">{heatmap.tenses}</p>
-                            </div>
-
-                            <div className={`p-4 rounded-lg text-center transition-all ${getColor(heatmap.prepositions)}`}>
-                                <p className="font-medium">Prepositions</p>
-                                <p className="text-2xl font-bold">{heatmap.prepositions}</p>
-                            </div>
+                        <div className="flex flex-wrap gap-3 mt-3 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-green-300" />0 errors</span>
+                            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-green-400" />1–2</span>
+                            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-yellow-400" />3–4</span>
+                            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-orange-400" />5–6</span>
+                            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-red-400" />7+</span>
                         </div>
                     </div>
-                    </>
                 )}
 
                 {role === 'tutor' && (
@@ -253,7 +257,7 @@ const heatmap = demoMode
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {section.cards.map((card) => (
                                 <Link key={card.title} href={card.href} className="group">
-                                    <Card className="transition-shadow group-hover:shadow-md min-h-[120px]">
+                                    <Card className="transition-shadow group-hover:shadow-md min-h-30">
                                         <CardHeader className="flex flex-row items-center gap-4">
                                             <div className="bg-primary/10 text-primary rounded-lg p-2">
                                                 <card.icon className="h-6 w-6" />

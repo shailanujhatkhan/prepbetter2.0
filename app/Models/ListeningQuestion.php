@@ -7,13 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 class ListeningQuestion extends Model
 {
     protected $fillable = [
+        'youtube_video_id',
+        'playlist_id',
         'title',
-        'audio_text',
+        'text',
         'options',
         'correct_answer',
+        'synced_at',
     ];
 
     protected $casts = [
-        'options' => 'array',
+        'options'   => 'array',
+        'synced_at' => 'datetime',
     ];
 }
