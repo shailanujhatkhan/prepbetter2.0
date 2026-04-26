@@ -20,6 +20,13 @@ class Booking extends Model
         'payment_method',
         'payment_status',
         'meet_link',
+        'transaction_number',
+        'reference_number',
+        'payment_note',
+    ];
+
+    protected $casts = [
+        'scheduled_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
