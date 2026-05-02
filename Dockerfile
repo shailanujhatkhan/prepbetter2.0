@@ -10,8 +10,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo pdo_pgsql zip
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-COPY --from=node:20 /usr/local/bin/node /usr/local/bin/node
-COPY --from=node:20 /usr/local/bin/npm /usr/local/bin/npm
+COPY --from=node:20 /usr/local/ /usr/local/
 
 WORKDIR /var/www/html
 
