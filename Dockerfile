@@ -22,7 +22,7 @@ RUN composer install --no-dev --optimize-autoloader
 
 RUN npm ci && npm run build
 
-RUN php database/seeders/generate-chart-images.php && mkdir -p public/writing-images && cp -r storage/app/public/writing-images/* public/writing-images/
+RUN php database/seeders/generate-chart-images.php && mkdir -p public/storage/writing-images public/writing-images && cp -r storage/app/public/writing-images/* public/storage/writing-images/ && cp -r storage/app/public/writing-images/* public/writing-images/
 
 RUN chmod -R 775 storage bootstrap/cache
 
